@@ -56,7 +56,7 @@
         .panel-generador { background: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; padding: 15px; margin-top: 10px; color: #856404; display: flex; flex-direction: column; gap: 10px; }
         .valor-destacado { font-weight: bold; font-size: 16px; color: #333; }
         
-        #camposRestantes, #camposGenerador, #camposRefrigeracion { transition: all 0.3s ease; }
+        #camposRestantes, #camposGenerador { transition: all 0.3s ease; }
     </style>
 </head>
 <body>
@@ -124,16 +124,6 @@
                     </div>
                 </div>
 
-                <div id="camposRefrigeracion" style="display: none; background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #2196f3;">
-                    <h4 style="margin: 0 0 10px 0; color: #0d47a1; width: 100%;">❄️ Datos Técnicos de Refrigeración</h4>
-                    <div style="display: flex; gap: 10px; width: 100%;">
-                        <div style="flex: 1;">
-                            <label>Tipo de Gas Refrigerante</label>
-                            <input type="text" id="tipoGas" placeholder="Ej. R-134a, R-404A, R-22">
-                        </div>
-                    </div>
-                </div>
-
                 <button type="submit" style="width: 100%; font-size: 16px;">Guardar Equipo en Inventario</button>
             </div>
         </form>
@@ -152,13 +142,9 @@
     <div class="modal-content">
         <span class="close" onclick="cerrarModal()">&times;</span>
         <h2 id="modalTitulo" style="margin-bottom: 5px; color: var(--primary);">Detalles</h2>
-        <p style="margin-top: 0; font-size: 14px; color: #666; margin-bottom: 5px;">
+        <p style="margin-top: 0; font-size: 14px; color: #666;">
             <span id="modalCategoria"></span> | Sucursal: <strong id="modalUbicacion"></strong>
         </p>
-        
-        <div id="infoGasRefrigerante" style="display: none; font-size: 13px; color: #0d47a1; background: #e3f2fd; padding: 5px 10px; border-radius: 4px; display: inline-block; font-weight: bold; margin-bottom: 10px;">
-            ❄️ Gas Refrigerante: <span id="modalTipoGas"></span>
-        </div>
 
         <div id="panelGenerador" class="panel-generador" style="display:none;">
             <div style="display:flex; justify-content:space-between; width:100%; align-items: center;">
@@ -307,19 +293,15 @@
 </div>
 
 <script>
-    // --- Lógica del Formulario de Nuevo Equipo ---
     function alCambiarCategoria() {
         const cat = document.getElementById('categoria').value;
         const divRestantes = document.getElementById('camposRestantes');
         const divGenerador = document.getElementById('camposGenerador');
-        const divRefrigeracion = document.getElementById('camposRefrigeracion');
         
         if(cat === "") {
             divRestantes.style.display = 'none';
         } else {
             divRestantes.style.display = 'block';
-            
-            // Lógica para Generadores
             if(cat === 'Generador Eléctrico') {
                 divGenerador.style.display = 'flex';
                 document.getElementById('horasUso').setAttribute('required', 'true');
@@ -332,15 +314,6 @@
                 document.getElementById('capacidadTanque').removeAttribute('required');
                 document.getElementById('nivelDiesel').removeAttribute('required');
                 document.getElementById('consumoHora').removeAttribute('required');
-            }
-
-            // Lógica para Refrigeración
-            if(cat === 'Equipos de Refrigeración') {
-                divRefrigeracion.style.display = 'flex';
-                document.getElementById('tipoGas').setAttribute('required', 'true');
-            } else {
-                divRefrigeracion.style.display = 'none';
-                document.getElementById('tipoGas').removeAttribute('required');
             }
         }
     }
@@ -371,7 +344,7 @@
         document.getElementById('divProximoFecha').style.display = seleccion === 'fecha' ? 'block' : 'none';
     }
 
-    // Datos Iniciales Actualizados (Versión 14 - Incluye tipoGas para Refrigeración)
+    // Datos Iniciales Actualizados (Versión 13 - Incluye consumoHora)
     const datosIniciales = [
         { 
             codigo: 'GEN-001', nombre: 'Generador Eléctrico AGG', categoria: 'Generador Eléctrico', ubicacion: 'Turmero', estado: 'Operativo', 
@@ -380,15 +353,10 @@
             ultimaRecarga: '2026-07-06', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
             repuestos: [{ tipo: 'Filtro de Aceite', marca: 'Fleetguard para Cummins', cantidad: 2, ultimaCompra: '2026-05-10', ultimoUso: '2026-06-01', historialCompras: [] }],
             mantenimientos: [], historialDiesel: []
-        },
-        { 
-            codigo: 'REF-001', nombre: 'Nevera Exhibidora Carne', categoria: 'Equipos de Refrigeración', ubicacion: 'Turmero', estado: 'Operativo', 
-            tipoGas: 'R-404A',
-            repuestos: [], mantenimientos: []
         }
     ];
 
-    let equipos = JSON.parse(localStorage.getItem('listaEquiposV14')) || datosIniciales;
+    let equipos = JSON.parse(localStorage.getItem('listaEquiposV13')) || datosIniciales;
     let indexActual = null;
 
     const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
@@ -408,7 +376,7 @@
                     </td>
                 </tr>`;
         });
-        localStorage.setItem('listaEquiposV14', JSON.stringify(equipos));
+        localStorage.setItem('listaEquiposV13', JSON.stringify(equipos));
     }
 
     document.getElementById('equipoForm').addEventListener('submit', function(e) {
@@ -417,18 +385,11 @@
         equipos.push({
             codigo: document.getElementById('codigo').value, nombre: document.getElementById('nombre').value,
             categoria: cat, ubicacion: document.getElementById('ubicacion').value, estado: document.getElementById('estado').value, 
-            
-            // Datos Generador
             horas: cat === 'Generador Eléctrico' ? parseInt(document.getElementById('horasUso').value) : '', 
             capacidadTanque: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('capacidadTanque').value) : '',
             porcentajeDiesel: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('nivelDiesel').value) : '',
             consumoHora: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('consumoHora').value) : '',
             ultimaRecarga: 'N/A', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
-            
-            // Datos Refrigeración
-            tipoGas: cat === 'Equipos de Refrigeración' ? document.getElementById('tipoGas').value.trim() : '',
-            
-            // Globales
             tipoProximo: 'no', proximoValor: '', repuestos: [], mantenimientos: [], historialDiesel: [] 
         });
         actualizarTabla(); 
@@ -454,9 +415,7 @@
         const divMantHorasLectura = document.getElementById('divMantHorasLectura');
         const optDiesel = document.getElementById('optDiesel');
         const secHistDiesel = document.getElementById('seccionHistorialDiesel');
-        const infoGasRefrigerante = document.getElementById('infoGasRefrigerante');
         
-        // Manejo Interfaz Generador
         if(eq.categoria === 'Generador Eléctrico') {
             panelGenerador.style.display = 'flex';
             divMantHorasLectura.style.display = 'block';
@@ -475,14 +434,6 @@
             optDiesel.style.display = 'none';
             secHistDiesel.style.display = 'none';
             document.getElementById('selectTipoProximo').innerHTML = `<option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
-        }
-        
-        // Manejo Interfaz Refrigeración
-        if(eq.categoria === 'Equipos de Refrigeración' && eq.tipoGas) {
-            infoGasRefrigerante.style.display = 'inline-block';
-            document.getElementById('modalTipoGas').innerText = eq.tipoGas;
-        } else {
-            infoGasRefrigerante.style.display = 'none';
         }
 
         actualizarCabeceraProximoMantenimiento(eq);
@@ -528,6 +479,7 @@
         }
     }
 
+    // NUEVO: Edición de Horas con Deducción Automática de Diésel
     function editarHorasManual() {
         let eq = equipos[indexActual];
         let nuevasHorasStr = prompt(`Lectura actual del horómetro para ${eq.codigo}:`, eq.horas || 0);
@@ -537,6 +489,7 @@
             let horasAnteriores = parseInt(eq.horas) || 0;
             let consumoTasa = parseFloat(eq.consumoHora) || 0;
 
+            // Si las horas subieron y el equipo tiene configurada una tasa de consumo
             if (nuevasHoras > horasAnteriores && consumoTasa > 0) {
                 let horasTrabajadas = nuevasHoras - horasAnteriores;
                 let litrosConsumidos = horasTrabajadas * consumoTasa;
@@ -548,7 +501,7 @@
                     let litrosActuales = (capacidad * parseFloat(eq.porcentajeDiesel)) / 100;
                     
                     litrosActuales -= litrosConsumidos;
-                    if(litrosActuales < 0) litrosActuales = 0; 
+                    if(litrosActuales < 0) litrosActuales = 0; // Evitar negativos
                     
                     eq.porcentajeDiesel = (litrosActuales / capacidad) * 100;
                     eq.ultimaSalida = obtenerFechaHoy();
@@ -775,7 +728,7 @@
     }
     function toggleMantenimientoRapido() { const val = document.getElementById('mantRepuestoSelect').value; document.getElementById('divNuevoRepMant').style.display = val === 'nuevo' ? 'flex' : 'none'; }
     function guardarYRefrescarModal() { 
-        localStorage.setItem('listaEquiposV14', JSON.stringify(equipos)); 
+        localStorage.setItem('listaEquiposV13', JSON.stringify(equipos)); 
         if(equipos[indexActual].categoria==='Generador Eléctrico'){ 
             actualizarInterfazDiesel(equipos[indexActual]); 
             renderizarHistorialDiesel();
