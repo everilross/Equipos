@@ -56,7 +56,7 @@
         .panel-generador { background: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; padding: 15px; margin-top: 10px; color: #856404; display: flex; flex-direction: column; gap: 10px; }
         .valor-destacado { font-weight: bold; font-size: 16px; color: #333; }
         
-        #camposRestantes, #camposGenerador { transition: all 0.3s ease; }
+        #camposRestantes, #camposGenerador, #camposRefrigeracion { transition: all 0.3s ease; }
     </style>
 </head>
 <body>
@@ -124,6 +124,36 @@
                     </div>
                 </div>
 
+                <div id="camposRefrigeracion" style="display: none; background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #2196f3; flex-direction: column; gap: 10px;">
+                    <h4 style="margin: 0; color: #0d47a1; width: 100%;">❄️ Datos Técnicos de Refrigeración</h4>
+                    <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
+                        <div style="flex: 1.2; min-width: 180px;">
+                            <label>Tipo de Gas Refrigerante</label>
+                            <input type="text" id="tipoGas" placeholder="Ej. R-404A, R-134a">
+                        </div>
+                        <div style="flex: 1; min-width: 130px;">
+                            <label>Valor Compresor</label>
+                            <input type="number" id="compresorValor" min="1" placeholder="Ej. 5">
+                        </div>
+                        <div style="flex: 1; min-width: 130px;">
+                            <label>Unidad Medida</label>
+                            <select id="compresorUnidad">
+                                <option value="Toneladas (TR)">Toneladas (TR)</option>
+                                <option value="BTU">BTU</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1.5; min-width: 180px;">
+                            <label>Tipo de Corriente (Voltaje)</label>
+                            <select id="tipoCorriente">
+                                <option value="Monofásico 110V">Monofásico 110V</option>
+                                <option value="Monofásico 220V">Monofásico 220V</option>
+                                <option value="Bifásico 220V">Bifásico 220V</option>
+                                <option value="Trifásico 220V/440V">Trifásico 220V/440V</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit" style="width: 100%; font-size: 16px;">Guardar Equipo en Inventario</button>
             </div>
         </form>
@@ -142,9 +172,16 @@
     <div class="modal-content">
         <span class="close" onclick="cerrarModal()">&times;</span>
         <h2 id="modalTitulo" style="margin-bottom: 5px; color: var(--primary);">Detalles</h2>
-        <p style="margin-top: 0; font-size: 14px; color: #666;">
+        <p style="margin-top: 0; font-size: 14px; color: #666; margin-bottom: 5px;">
             <span id="modalCategoria"></span> | Sucursal: <strong id="modalUbicacion"></strong>
         </p>
+        
+        <div id="infoGasRefrigerante" style="display: none; font-size: 13px; color: #0d47a1; background: #e3f2fd; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #2196f3; line-height: 1.5;">
+            <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #2196f3; padding-bottom: 2px;">📋 Especificaciones del Sistema de Frío:</div>
+            • Gas Refrigerante: <span id="modalTipoGas" style="color:#333;"></span><br>
+            • Capacidad Compresor: <span id="modalCompresorInfo" style="color:#333;"></span><br>
+            • Alimentación Eléctrica: <span id="modalCorrienteInfo" style="color:#333;"></span>
+        </div>
 
         <div id="panelGenerador" class="panel-generador" style="display:none;">
             <div style="display:flex; justify-content:space-between; width:100%; align-items: center;">
@@ -293,15 +330,18 @@
 </div>
 
 <script>
+    // --- Lógica del Formulario de Nuevo Equipo ---
     function alCambiarCategoria() {
         const cat = document.getElementById('categoria').value;
         const divRestantes = document.getElementById('camposRestantes');
         const divGenerador = document.getElementById('camposGenerador');
+        const divRefrigeracion = document.getElementById('camposRefrigeracion');
         
         if(cat === "") {
             divRestantes.style.display = 'none';
         } else {
             divRestantes.style.display = 'block';
+            
             if(cat === 'Generador Eléctrico') {
                 divGenerador.style.display = 'flex';
                 document.getElementById('horasUso').setAttribute('required', 'true');
@@ -314,6 +354,16 @@
                 document.getElementById('capacidadTanque').removeAttribute('required');
                 document.getElementById('nivelDiesel').removeAttribute('required');
                 document.getElementById('consumoHora').removeAttribute('required');
+            }
+
+            if(cat === 'Equipos de Refrigeración') {
+                divRefrigeracion.style.display = 'flex';
+                document.getElementById('tipoGas').setAttribute('required', 'true');
+                document.getElementById('compresorValor').setAttribute('required', 'true');
+            } else {
+                divRefrigeracion.style.display = 'none';
+                document.getElementById('tipoGas').removeAttribute('required');
+                document.getElementById('compresorValor').removeAttribute('required');
             }
         }
     }
@@ -344,7 +394,7 @@
         document.getElementById('divProximoFecha').style.display = seleccion === 'fecha' ? 'block' : 'none';
     }
 
-    // Datos Iniciales Actualizados (Versión 13 - Incluye consumoHora)
+    // Datos Iniciales Actualizados (Versión 15 - Datos extendidos de Refrigeración)
     const datosIniciales = [
         { 
             codigo: 'GEN-001', nombre: 'Generador Eléctrico AGG', categoria: 'Generador Eléctrico', ubicacion: 'Turmero', estado: 'Operativo', 
@@ -353,10 +403,15 @@
             ultimaRecarga: '2026-07-06', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
             repuestos: [{ tipo: 'Filtro de Aceite', marca: 'Fleetguard para Cummins', cantidad: 2, ultimaCompra: '2026-05-10', ultimoUso: '2026-06-01', historialCompras: [] }],
             mantenimientos: [], historialDiesel: []
+        },
+        { 
+            codigo: 'REF-001', nombre: 'Nevera Exhibidora Carne', categoria: 'Equipos de Refrigeración', ubicacion: 'Turmero', estado: 'Operativo', 
+            tipoGas: 'R-404A', compresorValor: '5', compresorUnidad: 'Toneladas (TR)', tipoCorriente: 'Trifásico 220V/440V',
+            repuestos: [], mantenimientos: []
         }
     ];
 
-    let equipos = JSON.parse(localStorage.getItem('listaEquiposV13')) || datosIniciales;
+    let equipos = JSON.parse(localStorage.getItem('listaEquiposV15')) || datosIniciales;
     let indexActual = null;
 
     const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
@@ -376,7 +431,7 @@
                     </td>
                 </tr>`;
         });
-        localStorage.setItem('listaEquiposV13', JSON.stringify(equipos));
+        localStorage.setItem('listaEquiposV15', JSON.stringify(equipos));
     }
 
     document.getElementById('equipoForm').addEventListener('submit', function(e) {
@@ -385,16 +440,24 @@
         equipos.push({
             codigo: document.getElementById('codigo').value, nombre: document.getElementById('nombre').value,
             categoria: cat, ubicacion: document.getElementById('ubicacion').value, estado: document.getElementById('estado').value, 
+            
+            // Datos Generador
             horas: cat === 'Generador Eléctrico' ? parseInt(document.getElementById('horasUso').value) : '', 
             capacidadTanque: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('capacidadTanque').value) : '',
             porcentajeDiesel: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('nivelDiesel').value) : '',
             consumoHora: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('consumoHora').value) : '',
             ultimaRecarga: 'N/A', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
+            
+            // Datos Refrigeración Ampliados
+            tipoGas: cat === 'Equipos de Refrigeración' ? document.getElementById('tipoGas').value.trim() : '',
+            compresorValor: cat === 'Equipos de Refrigeración' ? document.getElementById('compresorValor').value.trim() : '',
+            compresorUnidad: cat === 'Equipos de Refrigeración' ? document.getElementById('compresorUnidad').value : '',
+            tipoCorriente: cat === 'Equipos de Refrigeración' ? document.getElementById('tipoCorriente').value : '',
+            
+            // Globales
             tipoProximo: 'no', proximoValor: '', repuestos: [], mantenimientos: [], historialDiesel: [] 
         });
-        actualizarTabla(); 
-        this.reset(); 
-        alCambiarCategoria();
+        actualizarTabla(); this.reset(); alCambiarCategoria();
     });
 
     function eliminarEquipo(idx) { if(confirm("¿Eliminar equipo?")) { equipos.splice(idx, 1); actualizarTabla(); } }
@@ -415,25 +478,29 @@
         const divMantHorasLectura = document.getElementById('divMantHorasLectura');
         const optDiesel = document.getElementById('optDiesel');
         const secHistDiesel = document.getElementById('seccionHistorialDiesel');
+        const infoGasRefrigerante = document.getElementById('infoGasRefrigerante');
         
+        // Interfaz Generador
         if(eq.categoria === 'Generador Eléctrico') {
-            panelGenerador.style.display = 'flex';
-            divMantHorasLectura.style.display = 'block';
-            optDiesel.style.display = 'block';
-            secHistDiesel.style.display = 'block';
-            
+            panelGenerador.style.display = 'flex'; divMantHorasLectura.style.display = 'block'; optDiesel.style.display = 'block'; secHistDiesel.style.display = 'block';
             document.getElementById('modalHoras').innerText = eq.horas || '0';
             document.getElementById('mantHorometroActual').value = eq.horas || '';
             document.getElementById('modalConsumoTasa').innerText = eq.consumoHora || 0;
             actualizarInterfazDiesel(eq);
-
             document.getElementById('selectTipoProximo').innerHTML = `<option value="horas">Sí, programar por Rutina (Horómetro)</option><option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
         } else {
-            panelGenerador.style.display = 'none'; 
-            divMantHorasLectura.style.display = 'none';
-            optDiesel.style.display = 'none';
-            secHistDiesel.style.display = 'none';
+            panelGenerador.style.display = 'none'; divMantHorasLectura.style.display = 'none'; optDiesel.style.display = 'none'; secHistDiesel.style.display = 'none';
             document.getElementById('selectTipoProximo').innerHTML = `<option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
+        }
+        
+        // Interfaz Refrigeración Expandida
+        if(eq.categoria === 'Equipos de Refrigeración') {
+            infoGasRefrigerante.style.display = 'block';
+            document.getElementById('modalTipoGas').innerText = eq.tipoGas || 'No registrado';
+            document.getElementById('modalCompresorInfo').innerText = (eq.compresorValor && eq.compresorUnidad) ? `${eq.compresorValor} ${eq.compresorUnidad}` : 'No registrado';
+            document.getElementById('modalCorrienteInfo').innerText = eq.tipoCorriente || 'No registrado';
+        } else {
+            infoGasRefrigerante.style.display = 'none';
         }
 
         actualizarCabeceraProximoMantenimiento(eq);
@@ -442,23 +509,17 @@
         document.getElementById('selectTipoProximo').value = eq.categoria === 'Generador Eléctrico' ? 'horas' : 'fecha';
         
         toggleInputsProximoMantenimiento();
-        renderizarRepuestos(); 
-        renderizarHistorial(); 
-        renderizarHistorialDiesel();
-        actualizarDropdownRepuestos();
+        renderizarRepuestos(); renderizarHistorial(); renderizarHistorialDiesel(); actualizarDropdownRepuestos();
         document.getElementById('modalDetalles').style.display = 'block';
     }
 
-    // --- Lógica del Diésel y Horómetro Automatizado ---
     function actualizarInterfazDiesel(eq) {
         const capacidad = parseFloat(eq.capacidadTanque) || 0;
         const porcentaje = parseFloat(eq.porcentajeDiesel) || 0;
         const litros = (capacidad * porcentaje) / 100;
-        
         document.getElementById('modalDieselCapacidad').innerText = capacidad;
         document.getElementById('modalDieselPorcentaje').innerText = porcentaje.toFixed(1);
         document.getElementById('modalDieselLitros').innerText = litros.toFixed(1);
-        
         document.getElementById('lblRecarga').innerText = eq.ultimaRecarga || 'N/A';
         document.getElementById('lblSalida').innerText = eq.ultimaSalida || 'N/A';
         document.getElementById('lblAjuste').innerText = eq.ultimoAjuste || 'N/A';
@@ -466,255 +527,110 @@
 
     function actualizarDieselManual() {
         let eq = equipos[indexActual];
-        let nuevoPorcentaje = prompt(`Ingrese el porcentaje de diésel actual (0 a 100) para ${eq.codigo}:`, eq.porcentajeDiesel || 0);
+        let nuevoPorcentaje = prompt(`Porcentaje de diésel actual (0 a 100) para ${eq.codigo}:`, eq.porcentajeDiesel || 0);
         if(nuevoPorcentaje !== null && nuevoPorcentaje.trim() !== "") {
             let pct = parseFloat(nuevoPorcentaje);
-            if(pct >= 0 && pct <= 100) {
-                eq.porcentajeDiesel = pct;
-                eq.ultimoAjuste = obtenerFechaHoy(); 
-                guardarYRefrescarModal();
-            } else {
-                alert("Error: Ingrese un valor válido entre 0 y 100.");
-            }
+            if(pct >= 0 && pct <= 100) { eq.porcentajeDiesel = pct; eq.ultimoAjuste = obtenerFechaHoy(); guardarYRefrescarModal(); }
         }
     }
 
-    // NUEVO: Edición de Horas con Deducción Automática de Diésel
     function editarHorasManual() {
         let eq = equipos[indexActual];
         let nuevasHorasStr = prompt(`Lectura actual del horómetro para ${eq.codigo}:`, eq.horas || 0);
-        
         if(nuevasHorasStr !== null && nuevasHorasStr.trim() !== "") {
-            let nuevasHoras = parseInt(nuevasHorasStr);
-            let horasAnteriores = parseInt(eq.horas) || 0;
-            let consumoTasa = parseFloat(eq.consumoHora) || 0;
-
-            // Si las horas subieron y el equipo tiene configurada una tasa de consumo
+            let nuevasHoras = parseInt(nuevasHorasStr); let horasAnteriores = parseInt(eq.horas) || 0; let consumoTasa = parseFloat(eq.consumoHora) || 0;
             if (nuevasHoras > horasAnteriores && consumoTasa > 0) {
-                let horasTrabajadas = nuevasHoras - horasAnteriores;
-                let litrosConsumidos = horasTrabajadas * consumoTasa;
-                
-                let confirmar = confirm(`El horómetro avanzó ${horasTrabajadas} horas.\nA un consumo de ${consumoTasa} L/h, el generador consumió aprox. ${litrosConsumidos.toFixed(1)} Litros de diésel.\n\n¿Desea descontar automáticamente esta cantidad del tanque?`);
-                
+                let horasTrabajadas = nuevasHoras - horasAnteriores; let litrosConsumidos = horasTrabajadas * consumoTasa;
+                let confirmar = confirm(`El horómetro avanzó ${horasTrabajadas} horas.\nConsumo estimado: ${litrosConsumidos.toFixed(1)} L.\n\n¿Descontar automáticamente del tanque?`);
                 if (confirmar) {
-                    const capacidad = parseFloat(eq.capacidadTanque);
-                    let litrosActuales = (capacidad * parseFloat(eq.porcentajeDiesel)) / 100;
-                    
-                    litrosActuales -= litrosConsumidos;
-                    if(litrosActuales < 0) litrosActuales = 0; // Evitar negativos
-                    
-                    eq.porcentajeDiesel = (litrosActuales / capacidad) * 100;
-                    eq.ultimaSalida = obtenerFechaHoy();
-                    
-                    if(!eq.historialDiesel) eq.historialDiesel = [];
-                    eq.historialDiesel.unshift({ 
-                        fecha: obtenerFechaHoy(), 
-                        accion: 'salida', 
-                        litros: litrosConsumidos.toFixed(1), 
-                        persona: 'Consumo Automático (Trabajo de Planta)' 
-                    });
-                    
-                    alert("Inventario de diésel actualizado.");
+                    const capacidad = parseFloat(eq.capacidadTanque); let litrosActuales = (capacidad * parseFloat(eq.porcentajeDiesel)) / 100 - litrosConsumidos;
+                    if(litrosActuales < 0) litrosActuales = 0; eq.porcentajeDiesel = (litrosActuales / capacidad) * 100; eq.ultimaSalida = obtenerFechaHoy();
+                    if(!eq.historialDiesel) eq.historialDiesel = []; eq.historialDiesel.unshift({ fecha: obtenerFechaHoy(), accion: 'salida', litros: litrosConsumidos.toFixed(1), persona: 'Consumo Automático (Trabajo de Planta)' });
                 }
             }
-
-            eq.horas = nuevasHoras;
-            document.getElementById('modalHoras').innerText = eq.horas;
-            document.getElementById('mantHorometroActual').value = eq.horas;
-            
+            eq.horas = nuevasHoras; document.getElementById('modalHoras').innerText = eq.horas; document.getElementById('mantHorometroActual').value = eq.horas;
             guardarYRefrescarModal();
         }
     }
 
     function guardarRegistroDiesel() {
-        let eq = equipos[indexActual];
-        const accion = document.getElementById('dieselAccion').value;
-        const litrosInput = parseFloat(document.getElementById('dieselLitros').value);
-        const persona = document.getElementById('dieselPersona').value.trim();
-        const fecha = document.getElementById('dieselFecha').value;
-
-        if(!litrosInput || isNaN(litrosInput) || litrosInput <= 0) { alert("Ingrese una cantidad de litros válida."); return; }
-        if(!persona || !fecha) { alert("Complete proveedor/responsable y fecha."); return; }
-
-        const capacidad = parseFloat(eq.capacidadTanque);
-        let litrosActuales = (capacidad * parseFloat(eq.porcentajeDiesel)) / 100;
-
-        if(accion === 'ingreso') {
-            litrosActuales += litrosInput;
-            eq.ultimaRecarga = fecha;
-        } else {
-            if(litrosInput > litrosActuales) {
-                if(!confirm(`⚠️ Solo tienes ${litrosActuales.toFixed(1)} L. ¿Dejar el tanque en 0%?`)) return;
-                litrosActuales = 0;
-            } else {
-                litrosActuales -= litrosInput;
-            }
+        let eq = equipos[indexActual]; const accion = document.getElementById('dieselAccion').value; const litrosInput = parseFloat(document.getElementById('dieselLitros').value);
+        const persona = document.getElementById('dieselPersona').value.trim(); const fecha = document.getElementById('dieselFecha').value;
+        if(!litrosInput || litrosInput <= 0 || !persona || !fecha) { alert("Complete los datos correctamente."); return; }
+        const capacidad = parseFloat(eq.capacidadTanque); let litrosActuales = (capacidad * parseFloat(eq.porcentajeDiesel)) / 100;
+        if(accion === 'ingreso') { litrosActuales += litrosInput; eq.ultimaRecarga = fecha; } else {
+            if(litrosInput > litrosActuales) { if(!confirm("¿Dejar tanque en 0%?")) return; litrosActuales = 0; } else { litrosActuales -= litrosInput; }
             eq.ultimaSalida = fecha;
         }
-
-        if(litrosActuales > capacidad) litrosActuales = capacidad;
-        eq.porcentajeDiesel = (litrosActuales / capacidad) * 100;
-
-        if(!eq.historialDiesel) eq.historialDiesel = [];
-        eq.historialDiesel.unshift({ fecha, accion, litros: litrosInput, persona });
-
-        guardarYRefrescarModal();
-        document.getElementById('formDiesel').reset();
-        document.getElementById('dieselFecha').value = obtenerFechaHoy();
-        document.getElementById('tipoRegistroGlobal').value = "";
-        toggleFormulariosRegistro();
-        alert("Movimiento de Diésel guardado correctamente.");
+        if(litrosActuales > capacidad) litrosActuales = capacidad; eq.porcentajeDiesel = (litrosActuales / capacidad) * 100;
+        if(!eq.historialDiesel) eq.historialDiesel = []; eq.historialDiesel.unshift({ fecha, accion, litros: litrosInput, persona });
+        guardarYRefrescarModal(); document.getElementById('formDiesel').reset(); document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro();
     }
 
     function renderizarHistorialDiesel() {
-        const contenedor = document.getElementById('listaDiesel');
-        contenedor.innerHTML = '';
-        let eq = equipos[indexActual];
-        if(!eq.historialDiesel || eq.historialDiesel.length === 0) { contenedor.innerHTML = '<p style="color:#666; font-size:13px;">Sin movimientos registrados.</p>'; return; }
-        
+        const contenedor = document.getElementById('listaDiesel'); contenedor.innerHTML = ''; let eq = equipos[indexActual];
+        if(!eq.historialDiesel || eq.historialDiesel.length === 0) { contenedor.innerHTML = '<p style="color:#666; font-size:13px;">Sin movimientos.</p>'; return; }
         eq.historialDiesel.forEach(m => {
-            let icono = m.accion === 'ingreso' ? '➕ Recarga' : '➖ Salida/Consumo';
-            let colorSigno = m.accion === 'ingreso' ? '#28a745' : '#dc3545';
-            let labelPersona = m.accion === 'ingreso' ? 'Proveedor: ' : 'Detalle: ';
-            
-            contenedor.innerHTML += `
-                <div class="historial-box historial-diesel">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <strong>📅 ${m.fecha}</strong> <span style="color:${colorSigno}; font-weight:bold;">${icono}: ${parseFloat(m.litros).toFixed(1)} L</span>
-                    </div>
-                    <div style="font-size: 13px; color: #444;">👤 ${labelPersona} <strong>${m.persona}</strong></div>
-                </div>`;
+            let icono = m.accion === 'ingreso' ? '➕ Recarga' : '➖ Salida';
+            contenedor.innerHTML += `<div class="historial-box historial-diesel"><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><strong>📅 ${m.fecha}</strong> <span style="color:${m.accion==='ingreso'?'#28a745':'#dc3545'}; font-weight:bold;">${icono}: ${parseFloat(m.litros).toFixed(1)} L</span></div><div style="font-size:13px; color:#444;">👤 ${m.accion==='ingreso'?'Proveedor:':'Detalle:'} <strong>${m.persona}</strong></div></div>`;
         });
     }
 
     function actualizarCabeceraProximoMantenimiento(eq) {
         const labelProx = document.getElementById('modalProximoServicio');
-        if (eq.tipoProximo === 'horas' && eq.categoria === 'Generador Eléctrico') {
-            labelProx.innerText = (eq.proximoValor) ? `${eq.proximoValor} hrs` : 'No asignado';
-            labelProx.style.color = '#d32f2f';
-        } else if (eq.tipoProximo === 'fecha') {
-            labelProx.innerText = (eq.proximoValor) ? eq.proximoValor : 'No asignada';
-            labelProx.style.color = 'var(--primary)';
-        } else {
-            labelProx.innerText = 'No programado';
-            labelProx.style.color = '#666';
-        }
+        if (eq.tipoProximo === 'horas' && eq.categoria === 'Generador Eléctrico') { labelProx.innerText = (eq.proximoValor) ? `${eq.proximoValor} hrs` : 'No asignado'; labelProx.style.color = '#d32f2f'; } 
+        else if (eq.tipoProximo === 'fecha') { labelProx.innerText = (eq.proximoValor) ? eq.proximoValor : 'No asignada'; labelProx.style.color = 'var(--primary)'; } 
+        else { labelProx.innerText = 'No programado'; labelProx.style.color = '#666'; }
     }
 
     function cerrarModal() { document.getElementById('modalDetalles').style.display = 'none'; document.getElementById('tipoRegistroGlobal').value = ''; toggleFormulariosRegistro(); }
 
     // --- LÓGICA MANTENIMIENTO ---
     function guardarMantenimiento() {
-        let eq = equipos[indexActual];
-        const fecha = document.getElementById('mantFecha').value;
-        const tecnico = document.getElementById('mantTecnico').value;
-        const trabajo = document.getElementById('mantTrabajo').value;
-        const repSeleccionado = document.getElementById('mantRepuestoSelect').value;
-        const cantUsada = parseInt(document.getElementById('mantCantRep').value) || 0;
-        const tipoProximoSeleccionado = document.getElementById('selectTipoProximo').value;
-
-        if(!tecnico || !trabajo) { alert("Completa el trabajo y el técnico."); return; }
-
+        let eq = equipos[indexActual]; const fecha = document.getElementById('mantFecha').value; const tecnico = document.getElementById('mantTecnico').value; const trabajo = document.getElementById('mantTrabajo').value;
+        const repSeleccionado = document.getElementById('mantRepuestoSelect').value; const cantUsada = parseInt(document.getElementById('mantCantRep').value) || 0; const tipoProximoSeleccionado = document.getElementById('selectTipoProximo').value;
+        if(!tecnico || !trabajo) { alert("Complete campos obligatorios."); return; }
         let repuestoTexto = "Ninguno";
         if(repSeleccionado !== "" && repSeleccionado !== "nuevo") {
-            let r = eq.repuestos[repSeleccionado];
-            if(r.cantidad < cantUsada) { r.cantidad = 0; } else { r.cantidad -= cantUsada; }
+            let r = eq.repuestos[repSeleccionado]; if(r.cantidad < cantUsada) { r.cantidad = 0; } else { r.cantidad -= cantUsada; }
             r.ultimoUso = fecha; repuestoTexto = `${cantUsada}x ${r.tipo} (${r.marca})`;
-        } else if (repSeleccionado === "nuevo") {
-            const nTipo = document.getElementById('nuevoRepTipo').value.trim();
-            const nMarca = document.getElementById('nuevoRepDesc').value.trim();
-            if(!nTipo) { alert("Escribe el tipo del repuesto."); return; }
-            eq.repuestos.push({ tipo: nTipo, marca: nMarca, cantidad: 0, ultimaCompra: 'N/A', ultimoUso: fecha, historialCompras: [] });
-            repuestoTexto = `${cantUsada}x ${nTipo} (${nMarca})`;
         }
-
-        let mHoras = "";
-        if(eq.categoria === 'Generador Eléctrico') {
-            mHoras = document.getElementById('mantHorometroActual').value;
-            if(mHoras !== "") eq.horas = parseInt(mHoras);
-            document.getElementById('modalHoras').innerText = eq.horas;
-        }
-
-        let proximoDestinoTexto = "No reagendado";
-        eq.tipoProximo = tipoProximoSeleccionado;
-
-        if (tipoProximoSeleccionado === 'horas' && eq.categoria === 'Generador Eléctrico') {
-            const hProx = document.getElementById('mantHorometroProx').value;
-            eq.proximoValor = hProx ? parseInt(hProx) : '';
-            proximoDestinoTexto = eq.proximoValor ? `Pautado a las ${eq.proximoValor} hrs (Rutina)` : 'No asignado';
-        } else if (tipoProximoSeleccionado === 'fecha') {
-            const fProx = document.getElementById('mantFechaProx').value;
-            eq.proximoValor = fProx || '';
-            proximoDestinoTexto = eq.proximoValor ? `Pautado para el día: ${eq.proximoValor}` : 'No asignado';
-        } else {
-            eq.proximoValor = '';
-            proximoDestinoTexto = "No requiere agendar (Reparación puntual)";
-        }
-
-        eq.mantenimientos.unshift({ 
-            fecha, tecnico, trabajo, repuesto: repuestoTexto, 
-            horasEnMantenimiento: mHoras, proximoAgendamiento: proximoDestinoTexto 
-        });
-        
-        actualizarCabeceraProximoMantenimiento(eq);
-        guardarYRefrescarModal();
-        
-        document.getElementById('formMantenimiento').reset();
-        document.getElementById('mantFecha').value = obtenerFechaHoy();
-        document.getElementById('selectTipoProximo').value = eq.categoria === 'Generador Eléctrico' ? 'horas' : 'fecha';
-        toggleInputsProximoMantenimiento();
-        actualizarDropdownRepuestos();
-        
-        document.getElementById('tipoRegistroGlobal').value = "";
-        toggleFormulariosRegistro();
-        alert("Mantenimiento registrado con éxito.");
+        let mHoras = eq.categoria === 'Generador Eléctrico' ? document.getElementById('mantHorometroActual').value : "";
+        if(mHoras !== "") eq.horas = parseInt(mHoras);
+        let proximoDestinoTexto = "No reagendado"; eq.tipoProximo = tipoProximoSeleccionado;
+        if (tipoProximoSeleccionado === 'horas' && eq.categoria === 'Generador Eléctrico') { eq.proximoValor = parseInt(document.getElementById('mantHorometroProx').value) || ''; proximoDestinoTexto = eq.proximoValor ? `A las ${eq.proximoValor} hrs` : 'No asignado'; } 
+        else if (tipoProximoSeleccionado === 'fecha') { eq.proximoValor = document.getElementById('mantFechaProx').value || ''; proximoDestinoTexto = eq.proximoValor ? `Para el: ${eq.proximoValor}` : 'No asignado'; } 
+        else { eq.proximoValor = ''; proximoDestinoTexto = "Reparación puntual"; }
+        eq.mantenimientos.unshift({ fecha, tecnico, trabajo, repuesto: repuestoTexto, horasEnMantenimiento: mHoras, proximoAgendamiento: proximoDestinoTexto });
+        actualizarCabeceraProximoMantenimiento(eq); guardarYRefrescarModal(); document.getElementById('formMantenimiento').reset(); document.getElementById('mantFecha').value = obtenerFechaHoy();
+        document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro(); alert("Mantenimiento guardado.");
     }
 
     function renderizarHistorial() {
-        const contenedor = document.getElementById('listaHistorial');
-        contenedor.innerHTML = '';
-        let mants = equipos[indexActual].mantenimientos;
+        const contenedor = document.getElementById('listaHistorial'); contenedor.innerHTML = ''; let mants = equipos[indexActual].mantenimientos;
         if(mants.length === 0) { contenedor.innerHTML = '<p style="color:#666; font-size:13px;">Sin mantenimientos.</p>'; return; }
-        
         mants.forEach(m => {
             let desgloseHoras = m.horasEnMantenimiento ? ` | ⏱️ Horómetro: ${m.horasEnMantenimiento} hrs` : '';
-            contenedor.innerHTML += `
-                <div class="historial-box">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <strong>📅 ${m.fecha}${desgloseHoras}</strong> <span style="color:var(--primary); font-weight:bold;">🧑‍🔧 ${m.tecnico}</span>
-                    </div>
-                    <div style="margin-bottom: 4px;">📝 ${m.trabajo}</div>
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                        <span style="font-size: 11px; color: #555; background: #eef; padding: 3px 6px; border-radius: 3px;">⚙️ Repuesto: ${m.repuesto}</span>
-                        <span style="font-size: 11px; color: #28a745; background: #e8f5e9; padding: 3px 6px; border-radius: 3px; font-weight:bold;">📋 Control Siguiente: ${m.proximoAgendamiento}</span>
-                    </div>
-                </div>`;
+            contenedor.innerHTML += `<div class="historial-box"><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><strong>📅 ${m.fecha}${desgloseHoras}</strong> <span style="color:var(--primary); font-weight:bold;">🧑‍🔧 ${m.tecnico}</span></div><div style="margin-bottom: 4px;">📝 ${m.trabajo}</div><div style="display:flex; gap:5px; flex-wrap:wrap;"><span style="font-size: 11px; color: #555; background: #eef; padding: 3px 6px; border-radius: 3px;">⚙️ Repuesto: ${m.repuesto}</span><span style="font-size: 11px; color: #28a745; background: #e8f5e9; padding: 3px 6px; border-radius: 3px; font-weight:bold;">📋 Control Siguiente: ${m.proximoAgendamiento}</span></div></div>`;
         });
     }
 
+    // --- SOPORTE REPUESTOS ---
     function mostrarFormNuevoRepuesto() { document.getElementById('formNuevoRepuesto').style.display = 'flex'; document.getElementById('divSumarStock').style.display = 'none'; }
     function crearNuevoRepuesto() {
-        const tipo = document.getElementById('nuevoCatTipo').value.trim(); const marca = document.getElementById('nuevoCatDesc').value.trim();
-        if(!tipo || !marca) return;
-        equipos[indexActual].repuestos.push({ tipo, marca, cantidad: 0, ultimaCompra: 'N/A', ultimoUso: 'N/A', historialCompras: [] });
+        const t = document.getElementById('nuevoCatTipo').value.trim(); const m = document.getElementById('nuevoCatDesc').value.trim(); if(!t || !m) return;
+        equipos[indexActual].repuestos.push({ tipo: t, marca: m, cantidad: 0, ultimaCompra: 'N/A', ultimoUso: 'N/A', historialCompras: [] });
         guardarYRefrescarModal(); document.getElementById('formNuevoRepuesto').reset(); document.getElementById('formNuevoRepuesto').style.display = 'none';
     }
-    function abrirSumarStock(i) {
-        let r = equipos[indexActual].repuestos[i]; document.getElementById('lblRepuestoCompra').innerText = `${r.tipo} (${r.marca})`;
-        document.getElementById('idxRepuestoCompra').value = i; document.getElementById('compraCant').value = 1;
-        document.getElementById('compraFecha').value = obtenerFechaHoy(); document.getElementById('divSumarStock').style.display = 'block';
-    }
+    function abrirSumarStock(i) { let r = equipos[indexActual].repuestos[i]; document.getElementById('lblRepuestoCompra').innerText = `${r.tipo} (${r.marca})`; document.getElementById('idxRepuestoCompra').value = i; document.getElementById('divSumarStock').style.display = 'block'; }
     function confirmarSumaStock() {
-        let idx = document.getElementById('idxRepuestoCompra').value; let cant = parseInt(document.getElementById('compraCant').value);
-        let f = document.getElementById('compraFecha').value; let p = document.getElementById('compraProveedor').value; let t = document.getElementById('compraTipoTienda').value;
-        let r = equipos[indexActual].repuestos[idx]; r.cantidad += cant; r.ultimaCompra = f;
-        if(!r.historialCompras) r.historialCompras = []; r.historialCompras.unshift({ fecha: f, cantidad: cant, proveedor: p, tipoTienda: t });
+        let idx = document.getElementById('idxRepuestoCompra').value; let cant = parseInt(document.getElementById('compraCant').value); let f = document.getElementById('compraFecha').value; let p = document.getElementById('compraProveedor').value; let t = document.getElementById('compraTipoTienda').value;
+        let r = equipos[indexActual].repuestos[idx]; r.cantidad += cant; r.ultimaCompra = f; if(!r.historialCompras) r.historialCompras = []; r.historialCompras.unshift({ fecha: f, cantidad: cant, proveedor: p, tipoTienda: t });
         guardarYRefrescarModal(); document.getElementById('divSumarStock').style.display = 'none';
     }
     function toggleCompras(i) { const d = document.getElementById(`compras-${i}`); d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
     function renderizarRepuestos() {
-        const c = document.getElementById('listaRepuestos'); c.innerHTML = '';
-        let reps = equipos[indexActual].repuestos; if(reps.length === 0) { c.innerHTML = '<li>Catálogo vacío.</li>'; return; }
+        const c = document.getElementById('listaRepuestos'); c.innerHTML = ''; let reps = equipos[indexActual].repuestos; if(reps.length === 0) { c.innerHTML = '<li>Catálogo vacío.</li>'; return; }
         reps.forEach((r, i) => {
             let cz = r.cantidad === 0 ? 'stock-zero' : ''; let tbl = '';
             if(r.historialCompras) r.historialCompras.forEach(ch => tbl += `<tr><td>${ch.fecha}</td><td>+${ch.cantidad}</td><td>${ch.proveedor}</td><td>${ch.tipoTienda}</td></tr>`);
@@ -724,17 +640,9 @@
     function actualizarDropdownRepuestos() {
         const s = document.getElementById('mantRepuestoSelect'); s.innerHTML = '<option value="">-- Sin repuesto --</option>';
         equipos[indexActual].repuestos.forEach((r, i) => s.innerHTML += `<option value="${i}">${r.tipo} (${r.marca}) - Disp: ${r.cantidad}</option>`);
-        s.innerHTML += '<option value="nuevo">➕ Usé un repuesto que no está en catálogo...</option>';
     }
     function toggleMantenimientoRapido() { const val = document.getElementById('mantRepuestoSelect').value; document.getElementById('divNuevoRepMant').style.display = val === 'nuevo' ? 'flex' : 'none'; }
-    function guardarYRefrescarModal() { 
-        localStorage.setItem('listaEquiposV13', JSON.stringify(equipos)); 
-        if(equipos[indexActual].categoria==='Generador Eléctrico'){ 
-            actualizarInterfazDiesel(equipos[indexActual]); 
-            renderizarHistorialDiesel();
-        } 
-        renderizarRepuestos(); actualizarDropdownRepuestos(); renderizarHistorial(); 
-    }
+    function guardarYRefrescarModal() { localStorage.setItem('listaEquiposV15', JSON.stringify(equipos)); if(equipos[indexActual].categoria==='Generador Eléctrico'){ actualizarInterfazDiesel(equipos[indexActual]); renderizarHistorialDiesel();} renderizarRepuestos(); actualizarDropdownRepuestos(); renderizarHistorial(); }
     window.onclick = function(e) { if (e.target == document.getElementById('modalDetalles')) cerrarModal(); }
     
     actualizarTabla();
