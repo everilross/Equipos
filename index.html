@@ -53,7 +53,9 @@
         .tabla-mini th, .tabla-mini td { padding: 6px; font-size: 11px; border-bottom: 1px solid #ccc; }
         .tabla-mini th { background-color: #ddd; color: #333; }
         
+        /* Paneles de Control Rápido */
         .panel-generador { background: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; padding: 15px; margin-top: 10px; color: #856404; display: flex; flex-direction: column; gap: 10px; }
+        .panel-refrigeracion { background: #e3f2fd; border: 1px solid #90caf9; border-radius: 6px; padding: 15px; margin-top: 10px; color: #0d47a1; display: flex; justify-content: space-between; align-items: center; }
         .valor-destacado { font-weight: bold; font-size: 16px; color: #333; }
         
         #camposRestantes, #camposGenerador, #camposRefrigeracion { transition: all 0.3s ease; }
@@ -64,7 +66,7 @@
 <div class="container">
     
     <div class="header-app">
-        <img src="Logo Campo Llano RGB-02.jpg" alt="Logo Campo Llano">
+        <img src="Logo Campo Llano RGB-02.jpg" alt="Logo Campo Llano" onerror="this.style.display='none'">
         <div>
             <h1 style="margin: 0; font-size: 32px;">CAMPO LLANO</h1>
             <h2 style="margin: 2px 0 0 0; font-size: 16px; color: #555; font-weight: 500;">Sistema de Control de Equipos y Activos</h2>
@@ -88,7 +90,7 @@
             <div id="camposRestantes" style="display: none;">
                 <div style="display: flex; gap: 15px; margin-bottom: 15px;">
                     <div style="flex: 1;"><label>Código del Equipo</label><input type="text" id="codigo" placeholder="Ej. REF-005" required></div>
-                    <div style="flex: 2;"><label>Descripción / Nombre</label><input type="text" id="nombre" placeholder="Ej. Nevera Exhibidora" required></div>
+                    <div style="flex: 2;"><label>Descripción / Nombre</label><input type="text" id="nombre" placeholder="Ej. Nevera Exhibidora Carne" required></div>
                 </div>
                 
                 <div style="display: flex; gap: 15px; margin-bottom: 15px;">
@@ -105,45 +107,46 @@
                 <div id="camposGenerador" style="display: none; background: #fff8e1; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #ffc107;">
                     <h4 style="margin: 0 0 10px 0; color: #b08a00; width: 100%;">⚙️ Datos Técnicos del Generador</h4>
                     <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 120px;">
-                            <label>Horómetro Base</label>
-                            <input type="number" id="horasUso" min="0" placeholder="Ej. 1250">
-                        </div>
-                        <div style="flex: 1; min-width: 120px;">
-                            <label>Cap. Tanque (Litros)</label>
-                            <input type="number" id="capacidadTanque" min="1" placeholder="Ej. 1000">
-                        </div>
-                        <div style="flex: 1; min-width: 120px;">
-                            <label>Nivel Actual (%)</label>
-                            <input type="number" id="nivelDiesel" min="0" max="100" placeholder="Ej. 85">
-                        </div>
-                        <div style="flex: 1; min-width: 120px;">
-                            <label>Consumo (L/Hora)</label>
-                            <input type="number" id="consumoHora" min="0.1" step="0.1" placeholder="Ej. 15.5">
-                        </div>
+                        <div style="flex: 1; min-width: 120px;"><label>Horómetro Base</label><input type="number" id="horasUso" min="0" placeholder="Ej. 1250"></div>
+                        <div style="flex: 1; min-width: 120px;"><label>Cap. Tanque (L)</label><input type="number" id="capacidadTanque" min="1" placeholder="Ej. 1000"></div>
+                        <div style="flex: 1; min-width: 120px;"><label>Nivel Actual (%)</label><input type="number" id="nivelDiesel" min="0" max="100" placeholder="Ej. 85"></div>
+                        <div style="flex: 1; min-width: 120px;"><label>Consumo (L/Hora)</label><input type="number" id="consumoHora" min="0.1" step="0.1" placeholder="Ej. 15.5"></div>
                     </div>
                 </div>
 
                 <div id="camposRefrigeracion" style="display: none; background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #2196f3; flex-direction: column; gap: 10px;">
                     <h4 style="margin: 0; color: #0d47a1; width: 100%;">❄️ Datos Técnicos de Refrigeración</h4>
+                    
                     <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
-                        <div style="flex: 1.2; min-width: 180px;">
-                            <label>Tipo de Gas Refrigerante</label>
+                        <div style="flex: 1; min-width: 150px;">
+                            <label>Gas Refrigerante</label>
                             <input type="text" id="tipoGas" placeholder="Ej. R-404A, R-134a">
                         </div>
-                        <div style="flex: 1; min-width: 130px;">
+                        <div style="flex: 1; min-width: 150px;">
                             <label>Valor Compresor</label>
-                            <input type="number" id="compresorValor" min="1" placeholder="Ej. 5">
+                            <input type="number" id="compresorValor" min="0.1" step="0.1" placeholder="Ej. 5">
                         </div>
-                        <div style="flex: 1; min-width: 130px;">
+                        <div style="flex: 1; min-width: 150px;">
                             <label>Unidad Medida</label>
                             <select id="compresorUnidad">
                                 <option value="Toneladas (TR)">Toneladas (TR)</option>
                                 <option value="BTU">BTU</option>
+                                <option value="HP">HP (Caballos)</option>
                             </select>
                         </div>
-                        <div style="flex: 1.5; min-width: 180px;">
-                            <label>Tipo de Corriente (Voltaje)</label>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
+                        <div style="flex: 1.5; min-width: 200px;">
+                            <label>Rango Aplicación / Presión Retorno</label>
+                            <input type="text" id="rangoPresion" placeholder="Ej. LBP (Baja Presión) / 20 PSI">
+                        </div>
+                        <div style="flex: 1; min-width: 150px;">
+                            <label>Temp. Ideal / Actual (°C)</label>
+                            <input type="number" id="tempActual" step="0.1" placeholder="Ej. -18">
+                        </div>
+                        <div style="flex: 1; min-width: 150px;">
+                            <label>Corriente Eléctrica</label>
                             <select id="tipoCorriente">
                                 <option value="Monofásico 110V">Monofásico 110V</option>
                                 <option value="Monofásico 220V">Monofásico 220V</option>
@@ -176,11 +179,23 @@
             <span id="modalCategoria"></span> | Sucursal: <strong id="modalUbicacion"></strong>
         </p>
         
-        <div id="infoGasRefrigerante" style="display: none; font-size: 13px; color: #0d47a1; background: #e3f2fd; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #2196f3; line-height: 1.5;">
+        <div id="infoGasRefrigerante" style="display: none; font-size: 13px; color: #0d47a1; background: #e3f2fd; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #2196f3; line-height: 1.6;">
             <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #2196f3; padding-bottom: 2px;">📋 Especificaciones del Sistema de Frío:</div>
             • Gas Refrigerante: <span id="modalTipoGas" style="color:#333;"></span><br>
             • Capacidad Compresor: <span id="modalCompresorInfo" style="color:#333;"></span><br>
+            • Rango de Aplicación / Presión: <span id="modalRangoPresion" style="color:#333;"></span><br>
             • Alimentación Eléctrica: <span id="modalCorrienteInfo" style="color:#333;"></span>
+        </div>
+
+        <div id="panelRefrigeracion" class="panel-refrigeracion" style="display:none;">
+            <div>
+                <strong>🌡️ Temperatura Registrada:</strong> <span id="modalTempActual" class="valor-destacado" style="color: #0d47a1;"></span> °C 
+                <button onclick="actualizarTemperaturaManual()" style="background:transparent; border:none; cursor:pointer; font-size:16px;" title="Actualizar lectura de temperatura">✏️</button>
+            </div>
+            <div style="text-align: right; font-size: 12px; color: #555;">
+                Última medición/ajuste:<br>
+                <strong style="color: #333;" id="lblUltimaTemp">--</strong>
+            </div>
         </div>
 
         <div id="panelGenerador" class="panel-generador" style="display:none;">
@@ -360,10 +375,14 @@
                 divRefrigeracion.style.display = 'flex';
                 document.getElementById('tipoGas').setAttribute('required', 'true');
                 document.getElementById('compresorValor').setAttribute('required', 'true');
+                document.getElementById('rangoPresion').setAttribute('required', 'true');
+                document.getElementById('tempActual').setAttribute('required', 'true');
             } else {
                 divRefrigeracion.style.display = 'none';
                 document.getElementById('tipoGas').removeAttribute('required');
                 document.getElementById('compresorValor').removeAttribute('required');
+                document.getElementById('rangoPresion').removeAttribute('required');
+                document.getElementById('tempActual').removeAttribute('required');
             }
         }
     }
@@ -394,7 +413,7 @@
         document.getElementById('divProximoFecha').style.display = seleccion === 'fecha' ? 'block' : 'none';
     }
 
-    // Datos Iniciales Actualizados (Versión 15 - Datos extendidos de Refrigeración)
+    // Datos Iniciales (Versión 16 - Refrigeración Full)
     const datosIniciales = [
         { 
             codigo: 'GEN-001', nombre: 'Generador Eléctrico AGG', categoria: 'Generador Eléctrico', ubicacion: 'Turmero', estado: 'Operativo', 
@@ -407,11 +426,12 @@
         { 
             codigo: 'REF-001', nombre: 'Nevera Exhibidora Carne', categoria: 'Equipos de Refrigeración', ubicacion: 'Turmero', estado: 'Operativo', 
             tipoGas: 'R-404A', compresorValor: '5', compresorUnidad: 'Toneladas (TR)', tipoCorriente: 'Trifásico 220V/440V',
+            rangoPresion: 'LBP / 22 PSI', temperaturaActual: -18.5, ultimaModificacionTemp: '2026-07-07',
             repuestos: [], mantenimientos: []
         }
     ];
 
-    let equipos = JSON.parse(localStorage.getItem('listaEquiposV15')) || datosIniciales;
+    let equipos = JSON.parse(localStorage.getItem('listaEquiposV16')) || datosIniciales;
     let indexActual = null;
 
     const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
@@ -431,7 +451,7 @@
                     </td>
                 </tr>`;
         });
-        localStorage.setItem('listaEquiposV15', JSON.stringify(equipos));
+        localStorage.setItem('listaEquiposV16', JSON.stringify(equipos));
     }
 
     document.getElementById('equipoForm').addEventListener('submit', function(e) {
@@ -448,11 +468,14 @@
             consumoHora: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('consumoHora').value) : '',
             ultimaRecarga: 'N/A', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
             
-            // Datos Refrigeración Ampliados
+            // Datos Refrigeración
             tipoGas: cat === 'Equipos de Refrigeración' ? document.getElementById('tipoGas').value.trim() : '',
             compresorValor: cat === 'Equipos de Refrigeración' ? document.getElementById('compresorValor').value.trim() : '',
             compresorUnidad: cat === 'Equipos de Refrigeración' ? document.getElementById('compresorUnidad').value : '',
             tipoCorriente: cat === 'Equipos de Refrigeración' ? document.getElementById('tipoCorriente').value : '',
+            rangoPresion: cat === 'Equipos de Refrigeración' ? document.getElementById('rangoPresion').value.trim() : '',
+            temperaturaActual: cat === 'Equipos de Refrigeración' ? parseFloat(document.getElementById('tempActual').value) : '',
+            ultimaModificacionTemp: cat === 'Equipos de Refrigeración' ? obtenerFechaHoy() : '',
             
             // Globales
             tipoProximo: 'no', proximoValor: '', repuestos: [], mantenimientos: [], historialDiesel: [] 
@@ -475,12 +498,13 @@
         document.getElementById('dieselFecha').value = obtenerFechaHoy();
         
         const panelGenerador = document.getElementById('panelGenerador');
+        const panelRefrigeracion = document.getElementById('panelRefrigeracion');
         const divMantHorasLectura = document.getElementById('divMantHorasLectura');
         const optDiesel = document.getElementById('optDiesel');
         const secHistDiesel = document.getElementById('seccionHistorialDiesel');
         const infoGasRefrigerante = document.getElementById('infoGasRefrigerante');
         
-        // Interfaz Generador
+        // --- Interfaz Generador ---
         if(eq.categoria === 'Generador Eléctrico') {
             panelGenerador.style.display = 'flex'; divMantHorasLectura.style.display = 'block'; optDiesel.style.display = 'block'; secHistDiesel.style.display = 'block';
             document.getElementById('modalHoras').innerText = eq.horas || '0';
@@ -493,14 +517,21 @@
             document.getElementById('selectTipoProximo').innerHTML = `<option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
         }
         
-        // Interfaz Refrigeración Expandida
+        // --- Interfaz Refrigeración ---
         if(eq.categoria === 'Equipos de Refrigeración') {
             infoGasRefrigerante.style.display = 'block';
+            panelRefrigeracion.style.display = 'flex';
+            
             document.getElementById('modalTipoGas').innerText = eq.tipoGas || 'No registrado';
             document.getElementById('modalCompresorInfo').innerText = (eq.compresorValor && eq.compresorUnidad) ? `${eq.compresorValor} ${eq.compresorUnidad}` : 'No registrado';
+            document.getElementById('modalRangoPresion').innerText = eq.rangoPresion || 'No registrado';
             document.getElementById('modalCorrienteInfo').innerText = eq.tipoCorriente || 'No registrado';
+            
+            document.getElementById('modalTempActual').innerText = (eq.temperaturaActual !== undefined && eq.temperaturaActual !== '') ? eq.temperaturaActual : '--';
+            document.getElementById('lblUltimaTemp').innerText = eq.ultimaModificacionTemp || 'N/A';
         } else {
             infoGasRefrigerante.style.display = 'none';
+            panelRefrigeracion.style.display = 'none';
         }
 
         actualizarCabeceraProximoMantenimiento(eq);
@@ -511,6 +542,20 @@
         toggleInputsProximoMantenimiento();
         renderizarRepuestos(); renderizarHistorial(); renderizarHistorialDiesel(); actualizarDropdownRepuestos();
         document.getElementById('modalDetalles').style.display = 'block';
+    }
+
+    // --- Lógicas Específicas de Paneles ---
+
+    function actualizarTemperaturaManual() {
+        let eq = equipos[indexActual];
+        let nuevaTemp = prompt(`Ingrese la lectura de temperatura actual (°C) para ${eq.codigo}:`, eq.temperaturaActual || 0);
+        if(nuevaTemp !== null && nuevaTemp.trim() !== "") {
+            eq.temperaturaActual = parseFloat(nuevaTemp);
+            eq.ultimaModificacionTemp = obtenerFechaHoy();
+            document.getElementById('modalTempActual').innerText = eq.temperaturaActual;
+            document.getElementById('lblUltimaTemp').innerText = eq.ultimaModificacionTemp;
+            localStorage.setItem('listaEquiposV16', JSON.stringify(equipos));
+        }
     }
 
     function actualizarInterfazDiesel(eq) {
@@ -594,6 +639,11 @@
         if(repSeleccionado !== "" && repSeleccionado !== "nuevo") {
             let r = eq.repuestos[repSeleccionado]; if(r.cantidad < cantUsada) { r.cantidad = 0; } else { r.cantidad -= cantUsada; }
             r.ultimoUso = fecha; repuestoTexto = `${cantUsada}x ${r.tipo} (${r.marca})`;
+        } else if (repSeleccionado === "nuevo") {
+            const nTipo = document.getElementById('nuevoRepTipo').value.trim(); const nMarca = document.getElementById('nuevoRepDesc').value.trim();
+            if(!nTipo) { alert("Escribe el tipo del repuesto."); return; }
+            eq.repuestos.push({ tipo: nTipo, marca: nMarca, cantidad: 0, ultimaCompra: 'N/A', ultimoUso: fecha, historialCompras: [] });
+            repuestoTexto = `${cantUsada}x ${nTipo} (${nMarca})`;
         }
         let mHoras = eq.categoria === 'Generador Eléctrico' ? document.getElementById('mantHorometroActual').value : "";
         if(mHoras !== "") eq.horas = parseInt(mHoras);
@@ -640,9 +690,19 @@
     function actualizarDropdownRepuestos() {
         const s = document.getElementById('mantRepuestoSelect'); s.innerHTML = '<option value="">-- Sin repuesto --</option>';
         equipos[indexActual].repuestos.forEach((r, i) => s.innerHTML += `<option value="${i}">${r.tipo} (${r.marca}) - Disp: ${r.cantidad}</option>`);
+        s.innerHTML += '<option value="nuevo">➕ Usé un repuesto que no está en catálogo...</option>';
     }
     function toggleMantenimientoRapido() { const val = document.getElementById('mantRepuestoSelect').value; document.getElementById('divNuevoRepMant').style.display = val === 'nuevo' ? 'flex' : 'none'; }
-    function guardarYRefrescarModal() { localStorage.setItem('listaEquiposV15', JSON.stringify(equipos)); if(equipos[indexActual].categoria==='Generador Eléctrico'){ actualizarInterfazDiesel(equipos[indexActual]); renderizarHistorialDiesel();} renderizarRepuestos(); actualizarDropdownRepuestos(); renderizarHistorial(); }
+    
+    function guardarYRefrescarModal() { 
+        localStorage.setItem('listaEquiposV16', JSON.stringify(equipos)); 
+        if(equipos[indexActual].categoria==='Generador Eléctrico'){ 
+            actualizarInterfazDiesel(equipos[indexActual]); 
+            renderizarHistorialDiesel();
+        } 
+        renderizarRepuestos(); actualizarDropdownRepuestos(); renderizarHistorial(); 
+    }
+    
     window.onclick = function(e) { if (e.target == document.getElementById('modalDetalles')) cerrarModal(); }
     
     actualizarTabla();
