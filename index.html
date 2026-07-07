@@ -33,6 +33,7 @@
         .status-operative { color: var(--primary); font-weight: bold; }
         .status-alert { color: var(--secondary); font-weight: bold; }
         .status-maintenance { color: #dc3545; font-weight: bold; }
+        .status-danado { color: #842029; font-weight: bold; } /* Nuevo Estado */
 
         /* Modal */
         .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
@@ -50,10 +51,10 @@
         
         .historial-box { background: #f9f9f9; padding: 10px; border-left: 4px solid var(--primary); margin-bottom: 10px; font-size: 13px; }
         .historial-diesel { border-left: 4px solid #6c757d; }
+        .historial-estado { border-left: 4px solid #17a2b8; }
         .tabla-mini th, .tabla-mini td { padding: 6px; font-size: 11px; border-bottom: 1px solid #ccc; }
         .tabla-mini th { background-color: #ddd; color: #333; }
         
-        /* Paneles de Control Rápido */
         .panel-generador { background: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; padding: 15px; margin-top: 10px; color: #856404; display: flex; flex-direction: column; gap: 10px; }
         .panel-refrigeracion { background: #e3f2fd; border: 1px solid #90caf9; border-radius: 6px; padding: 15px; margin-top: 10px; color: #0d47a1; display: flex; justify-content: space-between; align-items: center; }
         .valor-destacado { font-weight: bold; font-size: 16px; color: #333; }
@@ -99,8 +100,13 @@
                         <select id="ubicacion"><option>Turmero</option><option>El Limón</option><option>Maracay</option></select>
                     </div>
                     <div style="flex: 1;">
-                        <label>Estado Actual</label>
-                        <select id="estado"><option>Operativo</option><option>En Alerta</option><option>Mantenimiento</option></select>
+                        <label>Estado Inicial</label>
+                        <select id="estado">
+                            <option value="Operativo">Operativo</option>
+                            <option value="En Alerta">En Alerta</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Dañado">Dañado</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -116,43 +122,18 @@
 
                 <div id="camposRefrigeracion" style="display: none; background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #2196f3; flex-direction: column; gap: 10px;">
                     <h4 style="margin: 0; color: #0d47a1; width: 100%;">❄️ Datos Técnicos de Refrigeración</h4>
-                    
                     <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 150px;">
-                            <label>Gas Refrigerante</label>
-                            <input type="text" id="tipoGas" placeholder="Ej. R-404A, R-134a">
-                        </div>
-                        <div style="flex: 1; min-width: 150px;">
-                            <label>Valor Compresor</label>
-                            <input type="number" id="compresorValor" min="0.1" step="0.1" placeholder="Ej. 5">
-                        </div>
-                        <div style="flex: 1; min-width: 150px;">
-                            <label>Unidad Medida</label>
-                            <select id="compresorUnidad">
-                                <option value="Toneladas (TR)">Toneladas (TR)</option>
-                                <option value="BTU">BTU</option>
-                                <option value="HP">HP (Caballos)</option>
-                            </select>
+                        <div style="flex: 1; min-width: 150px;"><label>Gas Refrigerante</label><input type="text" id="tipoGas" placeholder="Ej. R-404A, R-134a"></div>
+                        <div style="flex: 1; min-width: 150px;"><label>Valor Compresor</label><input type="number" id="compresorValor" min="0.1" step="0.1" placeholder="Ej. 5"></div>
+                        <div style="flex: 1; min-width: 150px;"><label>Unidad Medida</label>
+                            <select id="compresorUnidad"><option>Toneladas (TR)</option><option>BTU</option><option>HP (Caballos)</option></select>
                         </div>
                     </div>
-                    
                     <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
-                        <div style="flex: 1.5; min-width: 200px;">
-                            <label>Rango Aplicación / Presión Retorno</label>
-                            <input type="text" id="rangoPresion" placeholder="Ej. LBP (Baja Presión) / 20 PSI">
-                        </div>
-                        <div style="flex: 1; min-width: 150px;">
-                            <label>Temp. Ideal / Actual (°C)</label>
-                            <input type="number" id="tempActual" step="0.1" placeholder="Ej. -18">
-                        </div>
-                        <div style="flex: 1; min-width: 150px;">
-                            <label>Corriente Eléctrica</label>
-                            <select id="tipoCorriente">
-                                <option value="Monofásico 110V">Monofásico 110V</option>
-                                <option value="Monofásico 220V">Monofásico 220V</option>
-                                <option value="Bifásico 220V">Bifásico 220V</option>
-                                <option value="Trifásico 220V/440V">Trifásico 220V/440V</option>
-                            </select>
+                        <div style="flex: 1.5; min-width: 200px;"><label>Rango Aplicación / Presión</label><input type="text" id="rangoPresion" placeholder="Ej. LBP (Baja Presión) / 20 PSI"></div>
+                        <div style="flex: 1; min-width: 150px;"><label>Temp. Ideal/Actual (°C)</label><input type="number" id="tempActual" step="0.1" placeholder="Ej. -18"></div>
+                        <div style="flex: 1; min-width: 150px;"><label>Corriente Eléctrica</label>
+                            <select id="tipoCorriente"><option>Monofásico 110V</option><option>Monofásico 220V</option><option>Bifásico 220V</option><option>Trifásico 220V/440V</option></select>
                         </div>
                     </div>
                 </div>
@@ -175,9 +156,20 @@
     <div class="modal-content">
         <span class="close" onclick="cerrarModal()">&times;</span>
         <h2 id="modalTitulo" style="margin-bottom: 5px; color: var(--primary);">Detalles</h2>
-        <p style="margin-top: 0; font-size: 14px; color: #666; margin-bottom: 5px;">
+        <p style="margin-top: 0; font-size: 14px; color: #666; margin-bottom: 10px;">
             <span id="modalCategoria"></span> | Sucursal: <strong id="modalUbicacion"></strong>
         </p>
+
+        <div style="background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+            <strong style="color: #333;">Estado Actual:</strong>
+            <select id="modalCambioEstado" style="width: auto; padding: 6px; font-weight: bold; border-color: #aaa;">
+                <option value="Operativo">Operativo</option>
+                <option value="En Alerta">En Alerta</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+                <option value="Dañado">Dañado</option>
+            </select>
+            <button class="btn-info" onclick="actualizarEstadoManual()">Guardar Cambio</button>
+        </div>
         
         <div id="infoGasRefrigerante" style="display: none; font-size: 13px; color: #0d47a1; background: #e3f2fd; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #2196f3; line-height: 1.6;">
             <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #2196f3; padding-bottom: 2px;">📋 Especificaciones del Sistema de Frío:</div>
@@ -193,8 +185,7 @@
                 <button onclick="actualizarTemperaturaManual()" style="background:transparent; border:none; cursor:pointer; font-size:16px;" title="Actualizar lectura de temperatura">✏️</button>
             </div>
             <div style="text-align: right; font-size: 12px; color: #555;">
-                Última medición/ajuste:<br>
-                <strong style="color: #333;" id="lblUltimaTemp">--</strong>
+                Última medición/ajuste:<br><strong style="color: #333;" id="lblUltimaTemp">--</strong>
             </div>
         </div>
 
@@ -206,7 +197,6 @@
                 </div>
                 <div><strong>📅 Próx. Servicio:</strong> <span id="modalProximoServicio" class="valor-destacado" style="color: #d32f2f;"></span></div>
             </div>
-            
             <div style="border-top: 1px dashed #ccc; padding-top: 10px; display:flex; justify-content:space-between; width:100%; align-items: flex-start;">
                 <div>
                     <strong>⛽ Combustible:</strong> 
@@ -251,7 +241,6 @@
         
         <div class="seccion-modal" style="background: #eef2f7; border-color: #cdd6df;">
             <h3 style="margin-top:0; color: #000;">📝 Crear Nuevo Registro</h3>
-            
             <div style="margin-bottom: 15px;">
                 <label style="color: var(--primary); font-size: 14px;">¿Qué tipo de registro desea crear?</label>
                 <select id="tipoRegistroGlobal" onchange="toggleFormulariosRegistro()" style="border-color: var(--primary); font-weight: bold; font-size: 15px;">
@@ -263,27 +252,16 @@
 
             <form id="formMantenimiento" style="display:none; background:#fff; padding:15px; border-radius:6px; border:1px solid #ccc;">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <div style="flex: 2;">
-                        <label>Repuesto Utilizado</label>
-                        <select id="mantRepuestoSelect" onchange="toggleMantenimientoRapido()"></select>
-                    </div>
-                    <div style="flex: 0.8;">
-                        <label>Cant. Usada</label>
-                        <input type="number" id="mantCantRep" min="1" value="1">
-                    </div>
+                    <div style="flex: 2;"><label>Repuesto Utilizado</label><select id="mantRepuestoSelect" onchange="toggleMantenimientoRapido()"></select></div>
+                    <div style="flex: 0.8;"><label>Cant. Usada</label><input type="number" id="mantCantRep" min="1" value="1"></div>
                 </div>
                 <div id="divNuevoRepMant" style="display: none; gap: 10px; margin-bottom: 15px; background: #fff8e1; padding: 10px; border-radius: 4px;">
                     <div style="flex: 1;"><label>Nuevo Tipo</label><input type="text" id="nuevoRepTipo"></div>
                     <div style="flex: 1;"><label>Nueva Marca</label><input type="text" id="nuevoRepDesc"></div>
                 </div>
-                <div class="form-group">
-                    <label>Trabajo realizado (Detalles)</label>
-                    <input type="text" id="mantTrabajo" required>
-                </div>
-                <div id="divMantHorasLectura" style="display: none; margin-bottom: 15px;">
-                    <label>Lectura del Horómetro al realizar este trabajo</label>
-                    <input type="number" id="mantHorometroActual">
-                </div>
+                <div class="form-group"><label>Trabajo realizado (Detalles)</label><input type="text" id="mantTrabajo" required></div>
+                <div id="divMantHorasLectura" style="display: none; margin-bottom: 15px;"><label>Lectura del Horómetro al realizar este trabajo</label><input type="number" id="mantHorometroActual"></div>
+                
                 <div style="background: #eef2f7; padding: 12px; border-radius: 4px; border: 1px solid #d0d7de; margin-bottom: 15px;">
                     <label style="color: var(--primary);">🛠️ ¿Requiere agendar Próximo Mantenimiento?</label>
                     <select id="selectTipoProximo" onchange="toggleInputsProximoMantenimiento()" style="background: #fff; border: 1px solid var(--primary); font-weight: bold;">
@@ -294,6 +272,7 @@
                     <div id="divProximoHoras" style="margin-top: 10px; display: block;"><label>Próximo servicio a las (Hrs)</label><input type="number" id="mantHorometroProx"></div>
                     <div id="divProximoFecha" style="margin-top: 10px; display: none;"><label>Fecha del próximo servicio</label><input type="date" id="mantFechaProx"></div>
                 </div>
+
                 <div style="display: flex; gap: 10px;">
                     <div style="flex: 1;"><label>Técnico / Empresa</label><input type="text" id="mantTecnico" required></div>
                     <div style="flex: 1;"><label>Fecha</label><input type="date" id="mantFecha" required></div>
@@ -304,27 +283,12 @@
             <form id="formDiesel" style="display:none; background:#fff; padding:15px; border-radius:6px; border:1px solid #ccc;">
                 <h4 style="margin-top:0; color:#b08a00; border-bottom:1px solid #eee; padding-bottom:5px;">Registro de Movimiento de Diésel</h4>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <div style="flex: 1.5;">
-                        <label>Acción</label>
-                        <select id="dieselAccion" onchange="cambiarTextosDiesel()" style="font-weight:bold;">
-                            <option value="ingreso">➕ Recarga / Despacho (Suma)</option>
-                            <option value="salida">➖ Extracción / Préstamo (Resta)</option>
-                        </select>
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Cantidad (Litros)</label>
-                        <input type="number" id="dieselLitros" min="1" step="0.1" required>
-                    </div>
+                    <div style="flex: 1.5;"><label>Acción</label><select id="dieselAccion" onchange="cambiarTextosDiesel()" style="font-weight:bold;"><option value="ingreso">➕ Recarga / Despacho (Suma)</option><option value="salida">➖ Extracción / Préstamo (Resta)</option></select></div>
+                    <div style="flex: 1;"><label>Cantidad (Litros)</label><input type="number" id="dieselLitros" min="1" step="0.1" required></div>
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <div style="flex: 2;">
-                        <label id="lblDieselPersona">Proveedor que despacha</label>
-                        <input type="text" id="dieselPersona" placeholder="Ej. PDVSA / Transporte XYZ" required>
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Fecha</label>
-                        <input type="date" id="dieselFecha" required>
-                    </div>
+                    <div style="flex: 2;"><label id="lblDieselPersona">Proveedor que despacha</label><input type="text" id="dieselPersona" placeholder="Ej. PDVSA / Transporte XYZ" required></div>
+                    <div style="flex: 1;"><label>Fecha</label><input type="date" id="dieselFecha" required></div>
                 </div>
                 <button type="button" class="btn-success" style="margin-top: 5px; width: 100%; font-size: 15px; background: #6c757d;" onclick="guardarRegistroDiesel()">Guardar Movimiento</button>
             </form>
@@ -336,6 +300,11 @@
                 <div id="listaHistorial"></div>
             </div>
             
+            <div id="seccionHistorialEstados">
+                <h3 style="color: #17a2b8; margin-bottom: 10px;">🔄 Historial de Estados</h3>
+                <div id="listaEstados"></div>
+            </div>
+
             <div id="seccionHistorialDiesel" style="display: none;">
                 <h3 style="color: #6c757d; margin-bottom: 10px;">⛽ Historial de Movimientos de Diésel</h3>
                 <div id="listaDiesel"></div>
@@ -413,7 +382,7 @@
         document.getElementById('divProximoFecha').style.display = seleccion === 'fecha' ? 'block' : 'none';
     }
 
-    // Datos Iniciales (Versión 16 - Refrigeración Full)
+    // Datos Iniciales (Versión 17 - Historial de Estados)
     const datosIniciales = [
         { 
             codigo: 'GEN-001', nombre: 'Generador Eléctrico AGG', categoria: 'Generador Eléctrico', ubicacion: 'Turmero', estado: 'Operativo', 
@@ -421,17 +390,17 @@
             capacidadTanque: 1000, porcentajeDiesel: 85, consumoHora: 15,
             ultimaRecarga: '2026-07-06', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
             repuestos: [{ tipo: 'Filtro de Aceite', marca: 'Fleetguard para Cummins', cantidad: 2, ultimaCompra: '2026-05-10', ultimoUso: '2026-06-01', historialCompras: [] }],
-            mantenimientos: [], historialDiesel: []
+            mantenimientos: [], historialDiesel: [], historialEstados: []
         },
         { 
             codigo: 'REF-001', nombre: 'Nevera Exhibidora Carne', categoria: 'Equipos de Refrigeración', ubicacion: 'Turmero', estado: 'Operativo', 
             tipoGas: 'R-404A', compresorValor: '5', compresorUnidad: 'Toneladas (TR)', tipoCorriente: 'Trifásico 220V/440V',
             rangoPresion: 'LBP / 22 PSI', temperaturaActual: -18.5, ultimaModificacionTemp: '2026-07-07',
-            repuestos: [], mantenimientos: []
+            repuestos: [], mantenimientos: [], historialEstados: []
         }
     ];
 
-    let equipos = JSON.parse(localStorage.getItem('listaEquiposV16')) || datosIniciales;
+    let equipos = JSON.parse(localStorage.getItem('listaEquiposV17')) || datosIniciales;
     let indexActual = null;
 
     const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
@@ -440,7 +409,12 @@
         const cuerpo = document.querySelector('#tablaEquipos tbody');
         cuerpo.innerHTML = '';
         equipos.forEach((eq, idx) => {
-            let claseEstado = eq.estado === 'Operativo' ? 'status-operative' : (eq.estado === 'En Alerta' ? 'status-alert' : 'status-maintenance');
+            let claseEstado = '';
+            if(eq.estado === 'Operativo') claseEstado = 'status-operative';
+            else if(eq.estado === 'En Alerta') claseEstado = 'status-alert';
+            else if(eq.estado === 'Mantenimiento') claseEstado = 'status-maintenance';
+            else if(eq.estado === 'Dañado') claseEstado = 'status-danado';
+
             cuerpo.innerHTML += `
                 <tr>
                     <td><strong>${eq.codigo}</strong></td><td>${eq.nombre}</td><td>${eq.ubicacion}</td>
@@ -451,24 +425,24 @@
                     </td>
                 </tr>`;
         });
-        localStorage.setItem('listaEquiposV16', JSON.stringify(equipos));
+        localStorage.setItem('listaEquiposV17', JSON.stringify(equipos));
     }
 
     document.getElementById('equipoForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const cat = document.getElementById('categoria').value;
-        equipos.push({
+        const estadoInicial = document.getElementById('estado').value;
+        
+        let nuevoEq = {
             codigo: document.getElementById('codigo').value, nombre: document.getElementById('nombre').value,
-            categoria: cat, ubicacion: document.getElementById('ubicacion').value, estado: document.getElementById('estado').value, 
+            categoria: cat, ubicacion: document.getElementById('ubicacion').value, estado: estadoInicial, 
             
-            // Datos Generador
             horas: cat === 'Generador Eléctrico' ? parseInt(document.getElementById('horasUso').value) : '', 
             capacidadTanque: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('capacidadTanque').value) : '',
             porcentajeDiesel: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('nivelDiesel').value) : '',
             consumoHora: cat === 'Generador Eléctrico' ? parseFloat(document.getElementById('consumoHora').value) : '',
             ultimaRecarga: 'N/A', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
             
-            // Datos Refrigeración
             tipoGas: cat === 'Equipos de Refrigeración' ? document.getElementById('tipoGas').value.trim() : '',
             compresorValor: cat === 'Equipos de Refrigeración' ? document.getElementById('compresorValor').value.trim() : '',
             compresorUnidad: cat === 'Equipos de Refrigeración' ? document.getElementById('compresorUnidad').value : '',
@@ -477,9 +451,11 @@
             temperaturaActual: cat === 'Equipos de Refrigeración' ? parseFloat(document.getElementById('tempActual').value) : '',
             ultimaModificacionTemp: cat === 'Equipos de Refrigeración' ? obtenerFechaHoy() : '',
             
-            // Globales
-            tipoProximo: 'no', proximoValor: '', repuestos: [], mantenimientos: [], historialDiesel: [] 
-        });
+            tipoProximo: 'no', proximoValor: '', repuestos: [], mantenimientos: [], historialDiesel: [], 
+            historialEstados: [{ fecha: obtenerFechaHoy(), estado: estadoInicial, motivo: 'Registro Inicial en Sistema' }]
+        };
+        
+        equipos.push(nuevoEq);
         actualizarTabla(); this.reset(); alCambiarCategoria();
     });
 
@@ -491,6 +467,7 @@
         document.getElementById('modalTitulo').innerText = eq.codigo + ' - ' + eq.nombre;
         document.getElementById('modalCategoria').innerText = eq.categoria;
         document.getElementById('modalUbicacion').innerText = eq.ubicacion;
+        document.getElementById('modalCambioEstado').value = eq.estado; // Setear estado actual en el select
         
         document.getElementById('tipoRegistroGlobal').value = "";
         toggleFormulariosRegistro();
@@ -540,11 +517,62 @@
         document.getElementById('selectTipoProximo').value = eq.categoria === 'Generador Eléctrico' ? 'horas' : 'fecha';
         
         toggleInputsProximoMantenimiento();
-        renderizarRepuestos(); renderizarHistorial(); renderizarHistorialDiesel(); actualizarDropdownRepuestos();
+        renderizarRepuestos(); renderizarHistorial(); renderizarHistorialDiesel(); renderizarHistorialEstados(); actualizarDropdownRepuestos();
         document.getElementById('modalDetalles').style.display = 'block';
     }
 
-    // --- Lógicas Específicas de Paneles ---
+    // --- Lógicas Específicas ---
+
+    function actualizarEstadoManual() {
+        let eq = equipos[indexActual];
+        let nuevoEstado = document.getElementById('modalCambioEstado').value;
+        if(nuevoEstado === eq.estado) {
+            alert("El equipo ya se encuentra en ese estado.");
+            return;
+        }
+        
+        let motivo = prompt(`Por favor, indique el motivo por el cual cambia el estado a "${nuevoEstado}":`, "Revisión rutinaria / Falla detectada");
+        
+        if(motivo !== null) {
+            eq.estado = nuevoEstado;
+            if(!eq.historialEstados) eq.historialEstados = [];
+            eq.historialEstados.unshift({
+                fecha: obtenerFechaHoy(),
+                estado: nuevoEstado,
+                motivo: motivo.trim() || 'Sin motivo especificado'
+            });
+            guardarYRefrescarModal();
+            actualizarTabla();
+            alert("Estado actualizado y guardado en el historial.");
+        } else {
+            document.getElementById('modalCambioEstado').value = eq.estado; // Restaurar el selector si cancela
+        }
+    }
+
+    function renderizarHistorialEstados() {
+        const contenedor = document.getElementById('listaEstados');
+        contenedor.innerHTML = '';
+        let eq = equipos[indexActual];
+        if(!eq.historialEstados || eq.historialEstados.length === 0) {
+            contenedor.innerHTML = '<p style="color:#666; font-size:13px;">Sin cambios de estado registrados.</p>';
+            return;
+        }
+        eq.historialEstados.forEach(h => {
+            let cColor = '';
+            if(h.estado === 'Operativo') cColor = 'var(--primary)';
+            else if(h.estado === 'En Alerta') cColor = 'var(--secondary)';
+            else if(h.estado === 'Mantenimiento') cColor = '#dc3545';
+            else if(h.estado === 'Dañado') cColor = '#842029';
+            
+            contenedor.innerHTML += `
+                <div class="historial-box historial-estado">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <strong>📅 ${h.fecha}</strong> <span style="color:${cColor}; font-weight:bold;">${h.estado}</span>
+                    </div>
+                    <div style="font-size: 13px; color: #444;">📝 Motivo: <strong>${h.motivo}</strong></div>
+                </div>`;
+        });
+    }
 
     function actualizarTemperaturaManual() {
         let eq = equipos[indexActual];
@@ -554,7 +582,7 @@
             eq.ultimaModificacionTemp = obtenerFechaHoy();
             document.getElementById('modalTempActual').innerText = eq.temperaturaActual;
             document.getElementById('lblUltimaTemp').innerText = eq.ultimaModificacionTemp;
-            localStorage.setItem('listaEquiposV16', JSON.stringify(equipos));
+            localStorage.setItem('listaEquiposV17', JSON.stringify(equipos));
         }
     }
 
@@ -695,12 +723,12 @@
     function toggleMantenimientoRapido() { const val = document.getElementById('mantRepuestoSelect').value; document.getElementById('divNuevoRepMant').style.display = val === 'nuevo' ? 'flex' : 'none'; }
     
     function guardarYRefrescarModal() { 
-        localStorage.setItem('listaEquiposV16', JSON.stringify(equipos)); 
+        localStorage.setItem('listaEquiposV17', JSON.stringify(equipos)); 
         if(equipos[indexActual].categoria==='Generador Eléctrico'){ 
             actualizarInterfazDiesel(equipos[indexActual]); 
             renderizarHistorialDiesel();
         } 
-        renderizarRepuestos(); actualizarDropdownRepuestos(); renderizarHistorial(); 
+        renderizarRepuestos(); actualizarDropdownRepuestos(); renderizarHistorial(); renderizarHistorialEstados();
     }
     
     window.onclick = function(e) { if (e.target == document.getElementById('modalDetalles')) cerrarModal(); }
