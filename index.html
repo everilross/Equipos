@@ -26,7 +26,7 @@
         .btn-success { background-color: var(--primary); padding: 6px 10px; font-size: 12px; color: white; border: none; border-radius: 4px; cursor: pointer;}
         .btn-small { padding: 5px 8px; font-size: 12px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff;}
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; background: #fff;}
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
         th { background-color: var(--primary); color: white; }
         
@@ -74,6 +74,7 @@
         </div>
     </div>
 
+    <!-- Módulo de Registro Dinámico -->
     <div class="card">
         <h3 style="color: var(--primary);">Registrar Nuevo Equipo</h3>
         <form id="equipoForm">
@@ -110,6 +111,7 @@
                     </div>
                 </div>
                 
+                <!-- Campos Exclusivos para Generadores -->
                 <div id="camposGenerador" style="display: none; background: #fff8e1; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #ffc107;">
                     <h4 style="margin: 0 0 10px 0; color: #b08a00; width: 100%;">⚙️ Datos Técnicos del Generador</h4>
                     <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
@@ -120,6 +122,7 @@
                     </div>
                 </div>
 
+                <!-- Campos Exclusivos para Maquinaria Operativa -->
                 <div id="camposMaquinaria" style="display: none; background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #2196f3; flex-direction: column; gap: 10px;">
                     <h4 style="margin: 0; color: #0d47a1; width: 100%;">⚙️ Especificaciones de Maquinaria</h4>
                     
@@ -133,6 +136,7 @@
                         </div>
                     </div>
 
+                    <!-- Campos de Refrigeración (Se ocultan si elige Frescos) -->
                     <div id="camposFrio" style="display: flex; flex-direction: column; gap: 10px;">
                         <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
                             <div style="flex: 1; min-width: 150px;"><label>Gas Refrigerante</label><input type="text" id="tipoGas" placeholder="Ej. R-404A, R-134a"></div>
@@ -156,15 +160,16 @@
         </form>
     </div>
 
+    <!-- Inventario -->
     <div class="card">
         <h3 style="color: var(--primary);">Inventario Actual</h3>
-        <table id="tablaEquipos">
-            <thead><tr><th>Código</th><th>Descripción / Sub-Cat</th><th>Ubicación</th><th>Estado</th><th>Acciones</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <div id="contenedorInventario">
+            <!-- Las tablas agrupadas por categoría se inyectarán aquí -->
+        </div>
     </div>
 </div>
 
+<!-- Modal Principal -->
 <div id="modalDetalles" class="modal">
     <div class="modal-content">
         <span class="close" onclick="cerrarModal()">&times;</span>
@@ -173,6 +178,7 @@
             <span id="modalCategoria"></span> | Sucursal: <strong id="modalUbicacion"></strong>
         </p>
 
+        <!-- Control de Estado Rápido -->
         <div style="background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
             <strong style="color: #333;">Estado Actual:</strong>
             <select id="modalCambioEstado" style="width: auto; padding: 6px; font-weight: bold; border-color: #aaa;">
@@ -184,6 +190,7 @@
             <button class="btn-info" onclick="actualizarEstadoManual()">Guardar Cambio</button>
         </div>
         
+        <!-- Ficha Técnica de Refrigeración -->
         <div id="infoGasRefrigerante" style="display: none; font-size: 13px; color: #0d47a1; background: #e3f2fd; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #2196f3; line-height: 1.6;">
             <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #2196f3; padding-bottom: 2px;">📋 Especificaciones del Sistema de Frío:</div>
             • Gas Refrigerante: <span id="modalTipoGas" style="color:#333;"></span><br>
@@ -192,6 +199,7 @@
             • Alimentación Eléctrica: <span id="modalCorrienteInfo" style="color:#333;"></span>
         </div>
 
+        <!-- PANEL DE CONTROL: REFRIGERACIÓN -->
         <div id="panelRefrigeracion" class="panel-refrigeracion" style="display:none;">
             <div>
                 <strong>🌡️ Temperatura Registrada:</strong> <span id="modalTempActual" class="valor-destacado" style="color: #0d47a1;"></span> °C 
@@ -202,6 +210,7 @@
             </div>
         </div>
 
+        <!-- PANEL DE CONTROL: GENERADOR -->
         <div id="panelGenerador" class="panel-generador" style="display:none;">
             <div style="display:flex; justify-content:space-between; width:100%; align-items: center;">
                 <div>
@@ -226,6 +235,7 @@
             </div>
         </div>
         
+        <!-- SECCIÓN 1: INVENTARIO DE REPUESTOS -->
         <div class="seccion-modal" style="margin-top: 15px;">
             <h3 style="margin-top:0; color: var(--primary);">📦 Inventario de Repuestos del Equipo</h3>
             <ul id="listaRepuestos" class="lista-repuestos"></ul>
@@ -252,6 +262,7 @@
             </div>
         </div>
         
+        <!-- SECCIÓN 2: CREAR REGISTRO CENTRALIZADO -->
         <div class="seccion-modal" style="background: #eef2f7; border-color: #cdd6df;">
             <h3 style="margin-top:0; color: #000;">📝 Crear Nuevo Registro</h3>
             <div style="margin-bottom: 15px;">
@@ -307,6 +318,7 @@
             </form>
         </div>
 
+        <!-- SECCIÓN 3: HISTORIALES -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
             <div id="seccionHistorialMantenimiento">
                 <h3 style="color: var(--primary); margin-bottom: 10px;">📋 Historial de Mantenimientos</h3>
@@ -327,7 +339,6 @@
 </div>
 
 <script>
-    // --- Lógica del Formulario de Nuevo Equipo ---
     function alCambiarCategoria() {
         const cat = document.getElementById('categoria').value;
         const divRestantes = document.getElementById('camposRestantes');
@@ -339,7 +350,6 @@
         } else {
             divRestantes.style.display = 'block';
             
-            // Generador
             if(cat === 'Generador Eléctrico') {
                 divGenerador.style.display = 'flex';
                 document.getElementById('horasUso').setAttribute('required', 'true');
@@ -354,10 +364,9 @@
                 document.getElementById('consumoHora').removeAttribute('required');
             }
 
-            // Maquinaria Operativa
             if(cat === 'Maquinaria Operativa') {
                 divMaquinaria.style.display = 'flex';
-                alCambiarSubCategoria(); // Para forzar requeridos según la opción por defecto
+                alCambiarSubCategoria(); 
             } else {
                 divMaquinaria.style.display = 'none';
                 document.getElementById('tipoGas').removeAttribute('required');
@@ -413,7 +422,7 @@
         document.getElementById('divProximoFecha').style.display = seleccion === 'fecha' ? 'block' : 'none';
     }
 
-    // Datos Iniciales (Versión 18 - Subcategorías y nueva categoría general)
+    // Datos Iniciales (Versión 19 - Tablas Agrupadas por Categoría)
     const datosIniciales = [
         { 
             codigo: 'GEN-001', nombre: 'Generador Eléctrico AGG', categoria: 'Generador Eléctrico', subCategoria: '', ubicacion: 'Turmero', estado: 'Operativo', 
@@ -428,40 +437,87 @@
             tipoGas: 'R-404A', compresorValor: '5', compresorUnidad: 'Toneladas (TR)', tipoCorriente: 'Trifásico 220V/440V',
             rangoPresion: 'LBP / 22 PSI', temperaturaActual: -18.5, ultimaModificacionTemp: '2026-07-07',
             repuestos: [], mantenimientos: [], historialEstados: []
+        },
+        { 
+            codigo: 'COM-001', nombre: 'Servidor Principal', categoria: 'Computación / POS', subCategoria: '', ubicacion: 'Oficina Central', estado: 'Operativo', 
+            repuestos: [], mantenimientos: [], historialEstados: []
         }
     ];
 
-    let equipos = JSON.parse(localStorage.getItem('listaEquiposV18')) || datosIniciales;
+    let equipos = JSON.parse(localStorage.getItem('listaEquiposV19')) || datosIniciales;
     let indexActual = null;
 
     const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
 
+    // --- NUEVA LÓGICA DE ACTUALIZACIÓN DE TABLA AGRUPADA ---
     function actualizarTabla() {
-        const cuerpo = document.querySelector('#tablaEquipos tbody');
-        cuerpo.innerHTML = '';
+        const contenedor = document.getElementById('contenedorInventario');
+        contenedor.innerHTML = '';
+        
+        // Agrupar equipos por categoría
+        const equiposPorCategoria = {};
         equipos.forEach((eq, idx) => {
-            let claseEstado = '';
-            if(eq.estado === 'Operativo') claseEstado = 'status-operative';
-            else if(eq.estado === 'En Alerta') claseEstado = 'status-alert';
-            else if(eq.estado === 'Mantenimiento') claseEstado = 'status-maintenance';
-            else if(eq.estado === 'Dañado') claseEstado = 'status-danado';
-
-            let descCorta = eq.nombre;
-            if(eq.categoria === 'Maquinaria Operativa') {
-                descCorta += `<br><small style="color:#666;">${eq.subCategoria}</small>`;
+            if (!equiposPorCategoria[eq.categoria]) {
+                equiposPorCategoria[eq.categoria] = [];
             }
-
-            cuerpo.innerHTML += `
-                <tr>
-                    <td><strong>${eq.codigo}</strong></td><td>${descCorta}</td><td>${eq.ubicacion}</td>
-                    <td class="${claseEstado}">${eq.estado}</td>
-                    <td>
-                        <button class="btn-info" onclick="abrirModal(${idx})" style="padding:8px 12px; font-size:14px; background:var(--primary);">Abrir Ficha</button>
-                        <button class="btn-danger" style="border:none; color:white; border-radius:4px; cursor:pointer;" onclick="eliminarEquipo(${idx})">X</button>
-                    </td>
-                </tr>`;
+            equiposPorCategoria[eq.categoria].push({ eq, idx });
         });
-        localStorage.setItem('listaEquiposV18', JSON.stringify(equipos));
+
+        // Generar HTML por cada categoría
+        for (const categoria in equiposPorCategoria) {
+            let htmlCategoria = `<h4 style="margin-top: 20px; margin-bottom: 10px; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px; font-size: 16px;">📁 ${categoria}</h4>`;
+            htmlCategoria += `
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; background: #fff;">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción / Sub-Cat</th>
+                            <th>Ubicación</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            equiposPorCategoria[categoria].forEach(item => {
+                const eq = item.eq;
+                const idx = item.idx;
+
+                let claseEstado = '';
+                if(eq.estado === 'Operativo') claseEstado = 'status-operative';
+                else if(eq.estado === 'En Alerta') claseEstado = 'status-alert';
+                else if(eq.estado === 'Mantenimiento') claseEstado = 'status-maintenance';
+                else if(eq.estado === 'Dañado') claseEstado = 'status-danado';
+
+                let descCorta = eq.nombre;
+                if(eq.categoria === 'Maquinaria Operativa' && eq.subCategoria) {
+                    descCorta += `<br><small style="color:#666;">${eq.subCategoria}</small>`;
+                }
+
+                htmlCategoria += `
+                    <tr>
+                        <td><strong>${eq.codigo}</strong></td>
+                        <td>${descCorta}</td>
+                        <td>${eq.ubicacion}</td>
+                        <td class="${claseEstado}">${eq.estado}</td>
+                        <td>
+                            <button class="btn-info" onclick="abrirModal(${idx})" style="padding:8px 12px; font-size:14px; background:var(--primary);">Abrir Ficha</button>
+                            <button class="btn-danger" style="border:none; color:white; border-radius:4px; cursor:pointer; padding:8px 12px;" onclick="eliminarEquipo(${idx})">X</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            htmlCategoria += `</tbody></table>`;
+            contenedor.innerHTML += htmlCategoria;
+        }
+        
+        if (equipos.length === 0) {
+            contenedor.innerHTML = '<p style="color: #666; font-style: italic;">No hay equipos registrados en el inventario.</p>';
+        }
+
+        localStorage.setItem('listaEquiposV19', JSON.stringify(equipos));
     }
 
     document.getElementById('equipoForm').addEventListener('submit', function(e) {
@@ -524,7 +580,6 @@
         const secHistDiesel = document.getElementById('seccionHistorialDiesel');
         const infoGasRefrigerante = document.getElementById('infoGasRefrigerante');
         
-        // --- Interfaz Generador ---
         if(eq.categoria === 'Generador Eléctrico') {
             panelGenerador.style.display = 'flex'; divMantHorasLectura.style.display = 'block'; optDiesel.style.display = 'block'; secHistDiesel.style.display = 'block';
             document.getElementById('modalHoras').innerText = eq.horas || '0';
@@ -537,7 +592,6 @@
             document.getElementById('selectTipoProximo').innerHTML = `<option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
         }
         
-        // --- Interfaz Refrigeración (Dentro de Maquinaria Operativa) ---
         if(eq.categoria === 'Maquinaria Operativa' && eq.subCategoria === 'Equipo de Refrigeración') {
             infoGasRefrigerante.style.display = 'block';
             panelRefrigeracion.style.display = 'flex';
@@ -563,8 +617,6 @@
         renderizarRepuestos(); renderizarHistorial(); renderizarHistorialDiesel(); renderizarHistorialEstados(); actualizarDropdownRepuestos();
         document.getElementById('modalDetalles').style.display = 'block';
     }
-
-    // --- Lógicas Específicas ---
 
     function actualizarEstadoManual() {
         let eq = equipos[indexActual];
@@ -599,7 +651,7 @@
         if(nuevaTemp !== null && nuevaTemp.trim() !== "") {
             eq.temperaturaActual = parseFloat(nuevaTemp); eq.ultimaModificacionTemp = obtenerFechaHoy();
             document.getElementById('modalTempActual').innerText = eq.temperaturaActual; document.getElementById('lblUltimaTemp').innerText = eq.ultimaModificacionTemp;
-            localStorage.setItem('listaEquiposV18', JSON.stringify(equipos));
+            localStorage.setItem('listaEquiposV19', JSON.stringify(equipos));
         }
     }
 
@@ -670,7 +722,6 @@
 
     function cerrarModal() { document.getElementById('modalDetalles').style.display = 'none'; document.getElementById('tipoRegistroGlobal').value = ''; toggleFormulariosRegistro(); }
 
-    // --- LÓGICA MANTENIMIENTO ---
     function guardarMantenimiento() {
         let eq = equipos[indexActual]; const fecha = document.getElementById('mantFecha').value; const tecnico = document.getElementById('mantTecnico').value; const trabajo = document.getElementById('mantTrabajo').value;
         const repSeleccionado = document.getElementById('mantRepuestoSelect').value; const cantUsada = parseInt(document.getElementById('mantCantRep').value) || 0; const tipoProximoSeleccionado = document.getElementById('selectTipoProximo').value;
@@ -705,7 +756,6 @@
         });
     }
 
-    // --- SOPORTE REPUESTOS ---
     function mostrarFormNuevoRepuesto() { document.getElementById('formNuevoRepuesto').style.display = 'flex'; document.getElementById('divSumarStock').style.display = 'none'; }
     function crearNuevoRepuesto() {
         const t = document.getElementById('nuevoCatTipo').value.trim(); const m = document.getElementById('nuevoCatDesc').value.trim(); if(!t || !m) return;
@@ -735,7 +785,7 @@
     function toggleMantenimientoRapido() { const val = document.getElementById('mantRepuestoSelect').value; document.getElementById('divNuevoRepMant').style.display = val === 'nuevo' ? 'flex' : 'none'; }
     
     function guardarYRefrescarModal() { 
-        localStorage.setItem('listaEquiposV18', JSON.stringify(equipos)); 
+        localStorage.setItem('listaEquiposV19', JSON.stringify(equipos)); 
         if(equipos[indexActual].categoria==='Generador Eléctrico'){ 
             actualizarInterfazDiesel(equipos[indexActual]); 
             renderizarHistorialDiesel();
