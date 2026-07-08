@@ -9,7 +9,7 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
         h1, h2, h3 { color: var(--text-color); margin-top: 0; }
         h1 { color: #000; font-weight: 900; letter-spacing: -0.5px;}
-        .container { max-width: 1050px; margin: auto; }
+        .container { max-width: 1150px; margin: auto; } /* Ensanchado un poco para las nuevas columnas */
         
         .header-app { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; background: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         .header-app img { height: 75px; object-fit: contain; }
@@ -26,8 +26,8 @@
         .btn-success { background-color: var(--primary); padding: 6px 10px; font-size: 12px; color: white; border: none; border-radius: 4px; cursor: pointer;}
         .btn-small { padding: 5px 8px; font-size: 12px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; background: #fff;}
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; background: #fff; font-size: 14px;}
+        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #ddd; }
         th { background-color: var(--primary); color: white; }
         
         .status-operative { color: var(--primary); font-weight: bold; }
@@ -37,7 +37,7 @@
 
         /* Modal */
         .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #fff; margin: 2% auto; padding: 25px; border-radius: 8px; width: 95%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background-color: #fff; margin: 2% auto; padding: 25px; border-radius: 8px; width: 95%; max-width: 850px; max-height: 90vh; overflow-y: auto; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;}
         
         .seccion-modal { background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 6px; margin-bottom: 15px; border-top: 4px solid var(--primary);}
@@ -74,7 +74,6 @@
         </div>
     </div>
 
-    <!-- Módulo de Registro Dinámico -->
     <div class="card">
         <h3 style="color: var(--primary);">Registrar Nuevo Equipo</h3>
         <form id="equipoForm">
@@ -111,7 +110,6 @@
                     </div>
                 </div>
                 
-                <!-- Campos Exclusivos para Generadores -->
                 <div id="camposGenerador" style="display: none; background: #fff8e1; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #ffc107;">
                     <h4 style="margin: 0 0 10px 0; color: #b08a00; width: 100%;">⚙️ Datos Técnicos del Generador</h4>
                     <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
@@ -122,7 +120,6 @@
                     </div>
                 </div>
 
-                <!-- Campos Exclusivos para Maquinaria Operativa -->
                 <div id="camposMaquinaria" style="display: none; background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #2196f3; flex-direction: column; gap: 10px;">
                     <h4 style="margin: 0; color: #0d47a1; width: 100%;">⚙️ Especificaciones de Maquinaria</h4>
                     
@@ -136,7 +133,6 @@
                         </div>
                     </div>
 
-                    <!-- Campos de Refrigeración (Se ocultan si elige Frescos) -->
                     <div id="camposFrio" style="display: flex; flex-direction: column; gap: 10px;">
                         <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
                             <div style="flex: 1; min-width: 150px;"><label>Gas Refrigerante</label><input type="text" id="tipoGas" placeholder="Ej. R-404A, R-134a"></div>
@@ -160,16 +156,13 @@
         </form>
     </div>
 
-    <!-- Inventario -->
     <div class="card">
         <h3 style="color: var(--primary);">Inventario Actual</h3>
         <div id="contenedorInventario">
-            <!-- Las tablas agrupadas por categoría se inyectarán aquí -->
-        </div>
+            </div>
     </div>
 </div>
 
-<!-- Modal Principal -->
 <div id="modalDetalles" class="modal">
     <div class="modal-content">
         <span class="close" onclick="cerrarModal()">&times;</span>
@@ -178,7 +171,6 @@
             <span id="modalCategoria"></span> | Sucursal: <strong id="modalUbicacion"></strong>
         </p>
 
-        <!-- Control de Estado Rápido -->
         <div style="background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
             <strong style="color: #333;">Estado Actual:</strong>
             <select id="modalCambioEstado" style="width: auto; padding: 6px; font-weight: bold; border-color: #aaa;">
@@ -190,7 +182,6 @@
             <button class="btn-info" onclick="actualizarEstadoManual()">Guardar Cambio</button>
         </div>
         
-        <!-- Ficha Técnica de Refrigeración -->
         <div id="infoGasRefrigerante" style="display: none; font-size: 13px; color: #0d47a1; background: #e3f2fd; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #2196f3; line-height: 1.6;">
             <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #2196f3; padding-bottom: 2px;">📋 Especificaciones del Sistema de Frío:</div>
             • Gas Refrigerante: <span id="modalTipoGas" style="color:#333;"></span><br>
@@ -199,7 +190,6 @@
             • Alimentación Eléctrica: <span id="modalCorrienteInfo" style="color:#333;"></span>
         </div>
 
-        <!-- PANEL DE CONTROL: REFRIGERACIÓN -->
         <div id="panelRefrigeracion" class="panel-refrigeracion" style="display:none;">
             <div>
                 <strong>🌡️ Temperatura Registrada:</strong> <span id="modalTempActual" class="valor-destacado" style="color: #0d47a1;"></span> °C 
@@ -210,7 +200,6 @@
             </div>
         </div>
 
-        <!-- PANEL DE CONTROL: GENERADOR -->
         <div id="panelGenerador" class="panel-generador" style="display:none;">
             <div style="display:flex; justify-content:space-between; width:100%; align-items: center;">
                 <div>
@@ -235,7 +224,6 @@
             </div>
         </div>
         
-        <!-- SECCIÓN 1: INVENTARIO DE REPUESTOS -->
         <div class="seccion-modal" style="margin-top: 15px;">
             <h3 style="margin-top:0; color: var(--primary);">📦 Inventario de Repuestos del Equipo</h3>
             <ul id="listaRepuestos" class="lista-repuestos"></ul>
@@ -262,7 +250,6 @@
             </div>
         </div>
         
-        <!-- SECCIÓN 2: CREAR REGISTRO CENTRALIZADO -->
         <div class="seccion-modal" style="background: #eef2f7; border-color: #cdd6df;">
             <h3 style="margin-top:0; color: #000;">📝 Crear Nuevo Registro</h3>
             <div style="margin-bottom: 15px;">
@@ -318,7 +305,6 @@
             </form>
         </div>
 
-        <!-- SECCIÓN 3: HISTORIALES -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
             <div id="seccionHistorialMantenimiento">
                 <h3 style="color: var(--primary); margin-bottom: 10px;">📋 Historial de Mantenimientos</h3>
@@ -422,7 +408,7 @@
         document.getElementById('divProximoFecha').style.display = seleccion === 'fecha' ? 'block' : 'none';
     }
 
-    // Datos Iniciales (Versión 19 - Tablas Agrupadas por Categoría)
+    // Datos Iniciales (Versión 20)
     const datosIniciales = [
         { 
             codigo: 'GEN-001', nombre: 'Generador Eléctrico AGG', categoria: 'Generador Eléctrico', subCategoria: '', ubicacion: 'Turmero', estado: 'Operativo', 
@@ -430,31 +416,26 @@
             capacidadTanque: 1000, porcentajeDiesel: 85, consumoHora: 15,
             ultimaRecarga: '2026-07-06', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
             repuestos: [{ tipo: 'Filtro de Aceite', marca: 'Fleetguard para Cummins', cantidad: 2, ultimaCompra: '2026-05-10', ultimoUso: '2026-06-01', historialCompras: [] }],
-            mantenimientos: [], historialDiesel: [], historialEstados: []
+            mantenimientos: [{ fecha: '2026-06-01', tecnico: 'Maqui Motors', trabajo: 'Cambio de aceite y revisión general', repuesto: 'Ninguno', horasEnMantenimiento: 1200, proximoAgendamiento: 'A las 1500 hrs' }], 
+            historialDiesel: [], historialEstados: []
         },
         { 
             codigo: 'REF-001', nombre: 'Nevera Exhibidora Carne', categoria: 'Maquinaria Operativa', subCategoria: 'Equipo de Refrigeración', ubicacion: 'Turmero', estado: 'Operativo', 
             tipoGas: 'R-404A', compresorValor: '5', compresorUnidad: 'Toneladas (TR)', tipoCorriente: 'Trifásico 220V/440V',
             rangoPresion: 'LBP / 22 PSI', temperaturaActual: -18.5, ultimaModificacionTemp: '2026-07-07',
             repuestos: [], mantenimientos: [], historialEstados: []
-        },
-        { 
-            codigo: 'COM-001', nombre: 'Servidor Principal', categoria: 'Computación / POS', subCategoria: '', ubicacion: 'Oficina Central', estado: 'Operativo', 
-            repuestos: [], mantenimientos: [], historialEstados: []
         }
     ];
 
-    let equipos = JSON.parse(localStorage.getItem('listaEquiposV19')) || datosIniciales;
+    let equipos = JSON.parse(localStorage.getItem('listaEquiposV20')) || datosIniciales;
     let indexActual = null;
 
     const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
 
-    // --- NUEVA LÓGICA DE ACTUALIZACIÓN DE TABLA AGRUPADA ---
     function actualizarTabla() {
         const contenedor = document.getElementById('contenedorInventario');
         contenedor.innerHTML = '';
         
-        // Agrupar equipos por categoría
         const equiposPorCategoria = {};
         equipos.forEach((eq, idx) => {
             if (!equiposPorCategoria[eq.categoria]) {
@@ -463,9 +444,15 @@
             equiposPorCategoria[eq.categoria].push({ eq, idx });
         });
 
-        // Generar HTML por cada categoría
         for (const categoria in equiposPorCategoria) {
             let htmlCategoria = `<h4 style="margin-top: 20px; margin-bottom: 10px; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px; font-size: 16px;">📁 ${categoria}</h4>`;
+            
+            // --- NUEVO: Construcción de cabeceras dinámicas ---
+            let thExtras = '';
+            if (categoria === 'Generador Eléctrico') {
+                thExtras = '<th>⛽ Combustible</th><th>⏱️ Horas p/ Mant.</th><th>📅 Últ. Revisión</th>';
+            }
+
             htmlCategoria += `
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; background: #fff;">
                     <thead>
@@ -474,6 +461,7 @@
                             <th>Descripción / Sub-Cat</th>
                             <th>Ubicación</th>
                             <th>Estado</th>
+                            ${thExtras}
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -495,15 +483,48 @@
                     descCorta += `<br><small style="color:#666;">${eq.subCategoria}</small>`;
                 }
 
+                // --- NUEVO: Construcción de columnas dinámicas para Generador ---
+                let tdExtras = '';
+                if (categoria === 'Generador Eléctrico') {
+                    // Combustible
+                    let cap = parseFloat(eq.capacidadTanque) || 0;
+                    let pct = parseFloat(eq.porcentajeDiesel) || 0;
+                    let litros = (cap * pct) / 100;
+                    let colorCombustible = pct <= 20 ? '#dc3545' : '#0056b3';
+                    let txtCombustible = `<span style="color:${colorCombustible}; font-weight:bold;">${litros.toFixed(1)} L</span><br><small style="color:#666;">(${pct.toFixed(0)}%)</small>`;
+
+                    // Horas p/ Mantenimiento
+                    let txtHorasFaltantes = '<small style="color:#888;">No pautado</small>';
+                    if (eq.tipoProximo === 'horas' && eq.proximoValor) {
+                        let faltan = parseInt(eq.proximoValor) - (parseInt(eq.horas) || 0);
+                        if(faltan > 0) {
+                            txtHorasFaltantes = `<span style="color:var(--primary); font-weight:bold;">Faltan ${faltan} h</span>`;
+                        } else {
+                            txtHorasFaltantes = `<span style="color:#dc3545; font-weight:bold;">¡Vencido! (${Math.abs(faltan)} h)</span>`;
+                        }
+                    } else if (eq.tipoProximo === 'fecha' && eq.proximoValor) {
+                        txtHorasFaltantes = `<small>Por fecha: ${eq.proximoValor}</small>`;
+                    }
+
+                    // Último Mantenimiento
+                    let txtUltimoMant = '<small style="color:#888;">Ninguno</small>';
+                    if (eq.mantenimientos && eq.mantenimientos.length > 0) {
+                        txtUltimoMant = `<span style="font-weight:bold;">${eq.mantenimientos[0].fecha}</span>`;
+                    }
+
+                    tdExtras = `<td>${txtCombustible}</td><td>${txtHorasFaltantes}</td><td>${txtUltimoMant}</td>`;
+                }
+
                 htmlCategoria += `
                     <tr>
                         <td><strong>${eq.codigo}</strong></td>
                         <td>${descCorta}</td>
                         <td>${eq.ubicacion}</td>
                         <td class="${claseEstado}">${eq.estado}</td>
+                        ${tdExtras}
                         <td>
-                            <button class="btn-info" onclick="abrirModal(${idx})" style="padding:8px 12px; font-size:14px; background:var(--primary);">Abrir Ficha</button>
-                            <button class="btn-danger" style="border:none; color:white; border-radius:4px; cursor:pointer; padding:8px 12px;" onclick="eliminarEquipo(${idx})">X</button>
+                            <button class="btn-info" onclick="abrirModal(${idx})" style="padding:6px 10px; font-size:13px; background:var(--primary);">Ver Ficha</button>
+                            <button class="btn-danger" style="border:none; color:white; border-radius:4px; cursor:pointer; padding:6px 10px;" onclick="eliminarEquipo(${idx})">X</button>
                         </td>
                     </tr>
                 `;
@@ -517,7 +538,7 @@
             contenedor.innerHTML = '<p style="color: #666; font-style: italic;">No hay equipos registrados en el inventario.</p>';
         }
 
-        localStorage.setItem('listaEquiposV19', JSON.stringify(equipos));
+        localStorage.setItem('listaEquiposV20', JSON.stringify(equipos));
     }
 
     document.getElementById('equipoForm').addEventListener('submit', function(e) {
@@ -651,7 +672,7 @@
         if(nuevaTemp !== null && nuevaTemp.trim() !== "") {
             eq.temperaturaActual = parseFloat(nuevaTemp); eq.ultimaModificacionTemp = obtenerFechaHoy();
             document.getElementById('modalTempActual').innerText = eq.temperaturaActual; document.getElementById('lblUltimaTemp').innerText = eq.ultimaModificacionTemp;
-            localStorage.setItem('listaEquiposV19', JSON.stringify(equipos));
+            localStorage.setItem('listaEquiposV20', JSON.stringify(equipos));
         }
     }
 
@@ -686,7 +707,7 @@
                 }
             }
             eq.horas = nuevasHoras; document.getElementById('modalHoras').innerText = eq.horas; document.getElementById('mantHorometroActual').value = eq.horas;
-            guardarYRefrescarModal();
+            guardarYRefrescarModal(); actualizarTabla(); // Se actualiza la tabla para refrescar las horas faltantes
         }
     }
 
@@ -701,7 +722,7 @@
         }
         if(litrosActuales > capacidad) litrosActuales = capacidad; eq.porcentajeDiesel = (litrosActuales / capacidad) * 100;
         if(!eq.historialDiesel) eq.historialDiesel = []; eq.historialDiesel.unshift({ fecha, accion, litros: litrosInput, persona });
-        guardarYRefrescarModal(); document.getElementById('formDiesel').reset(); document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro();
+        guardarYRefrescarModal(); actualizarTabla(); document.getElementById('formDiesel').reset(); document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro();
     }
 
     function renderizarHistorialDiesel() {
@@ -743,7 +764,7 @@
         else if (tipoProximoSeleccionado === 'fecha') { eq.proximoValor = document.getElementById('mantFechaProx').value || ''; proximoDestinoTexto = eq.proximoValor ? `Para el: ${eq.proximoValor}` : 'No asignado'; } 
         else { eq.proximoValor = ''; proximoDestinoTexto = "Reparación puntual"; }
         eq.mantenimientos.unshift({ fecha, tecnico, trabajo, repuesto: repuestoTexto, horasEnMantenimiento: mHoras, proximoAgendamiento: proximoDestinoTexto });
-        actualizarCabeceraProximoMantenimiento(eq); guardarYRefrescarModal(); document.getElementById('formMantenimiento').reset(); document.getElementById('mantFecha').value = obtenerFechaHoy();
+        actualizarCabeceraProximoMantenimiento(eq); guardarYRefrescarModal(); actualizarTabla(); document.getElementById('formMantenimiento').reset(); document.getElementById('mantFecha').value = obtenerFechaHoy();
         document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro(); alert("Mantenimiento guardado.");
     }
 
@@ -785,7 +806,7 @@
     function toggleMantenimientoRapido() { const val = document.getElementById('mantRepuestoSelect').value; document.getElementById('divNuevoRepMant').style.display = val === 'nuevo' ? 'flex' : 'none'; }
     
     function guardarYRefrescarModal() { 
-        localStorage.setItem('listaEquiposV19', JSON.stringify(equipos)); 
+        localStorage.setItem('listaEquiposV20', JSON.stringify(equipos)); 
         if(equipos[indexActual].categoria==='Generador Eléctrico'){ 
             actualizarInterfazDiesel(equipos[indexActual]); 
             renderizarHistorialDiesel();
