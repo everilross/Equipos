@@ -130,6 +130,23 @@
                         <div style="flex: 1; min-width: 120px;"><label>Nivel Actual (%)</label><input type="number" id="nivelDiesel" min="0" max="100" placeholder="Ej. 100"></div>
                         <div style="flex: 1; min-width: 120px;"><label id="lblConsumo">Consumo (L/Hora)</label><input type="number" id="consumoHora" min="0.1" step="0.1" placeholder="Ej. 15.5"></div>
                     </div>
+
+                    <div id="seccionATS" style="display: none; margin-top: 10px; border-top: 1px dashed #e8c65f; padding-top: 10px;">
+                        <h5 style="margin: 0 0 10px 0; color: #b08a00; font-size: 14px;">🔌 Módulo ATS (Interruptor de Transferencia)</h5>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <div style="flex: 1; min-width: 120px;"><label>Marca</label><input type="text" id="atsMarca" placeholder="Ej. ASCO"></div>
+                            <div style="flex: 1; min-width: 120px;"><label>Modelo</label><input type="text" id="atsModelo" placeholder="Ej. Serie 300"></div>
+                            <div style="flex: 1; min-width: 120px;"><label>Serial</label><input type="text" id="atsSerial" placeholder="Ej. SN-1234"></div>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 100px;"><label>Voltaje Nominal</label><input type="text" id="atsVoltaje" placeholder="Ej. 220V"></div>
+                            <div style="flex: 1; min-width: 100px;"><label>Fase</label>
+                                <select id="atsFase"><option value="Monofásico">Monofásico</option><option value="Bifásico">Bifásico</option><option value="Trifásico">Trifásico</option></select>
+                            </div>
+                            <div style="flex: 1; min-width: 100px;"><label>Frecuencia</label><input type="text" id="atsFrecuencia" placeholder="Ej. 60Hz"></div>
+                            <div style="flex: 1; min-width: 120px;"><label>Fecha Instalación</label><input type="date" id="atsFechaInst"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="camposMaquinaria" style="display: none; background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #2196f3; flex-direction: column; gap: 10px;">
@@ -232,6 +249,17 @@
                     <div>Última Recarga: <strong style="color: #333;" id="lblRecarga">--</strong></div>
                     <div>Última Salida/Consumo: <strong style="color: #333;" id="lblSalida">--</strong></div>
                     <div>Último Ajuste (%): <strong style="color: #333;" id="lblAjuste">--</strong></div>
+                </div>
+            </div>
+            <div id="infoATS" style="display: none; font-size: 13px; margin-top: 10px; border-top: 1px dashed #e8c65f; padding-top: 10px;">
+                <strong style="color: #b08a00; font-size: 14px;">🔌 Ficha Técnica del Módulo ATS:</strong>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; color: #555;">
+                    <div>Marca: <strong id="modalAtsMarca" style="color:#333;"></strong></div>
+                    <div>Modelo: <strong id="modalAtsModelo" style="color:#333;"></strong></div>
+                    <div>Serial: <strong id="modalAtsSerial" style="color:#333;"></strong></div>
+                    <div>Voltaje / Fase: <strong id="modalAtsVoltaje" style="color:#333;"></strong> - <strong id="modalAtsFase" style="color:#333;"></strong></div>
+                    <div>Frecuencia: <strong id="modalAtsFrecuencia" style="color:#333;"></strong></div>
+                    <div>Fecha Instalación: <strong id="modalAtsFecha" style="color:#333;"></strong></div>
                 </div>
             </div>
         </div>
@@ -384,15 +412,18 @@
         const lblHoras = document.getElementById('lblHorasKm');
         const lblConsumo = document.getElementById('lblConsumo');
         const lblPrimerMant = document.getElementById('lblPrimerMant');
+        const secATS = document.getElementById('seccionATS');
         
         if(subCat === 'Vehículos') {
             lblHoras.innerText = 'Kilometraje Base';
             lblConsumo.innerText = 'Consumo (L/Km)';
             lblPrimerMant.innerText = '1er Mantenimiento (Km)';
+            if(secATS) secATS.style.display = 'none';
         } else {
             lblHoras.innerText = 'Horómetro Base';
             lblConsumo.innerText = 'Consumo (L/Hora)';
             lblPrimerMant.innerText = '1er Mantenimiento (Hrs)';
+            if(secATS) secATS.style.display = 'block';
         }
     }
 
@@ -441,13 +472,14 @@
         document.getElementById('divProximoFecha').style.display = seleccion === 'fecha' ? 'block' : 'none';
     }
 
-    // Datos Iniciales (Versión 23 - Alertas de Uso y Colores)
+    // Datos Iniciales (Versión con ATS)
     const datosIniciales = [
         { 
             codigo: 'GEN-001', nombre: 'Generador Eléctrico AGG', categoria: 'Equipos de Combustión', subCategoria: 'Generador Eléctrico', ubicacion: 'Turmero', estado: 'Operativo', 
             horas: 1250, tipoProximo: 'horas', proximoValor: 1500,
             capacidadTanque: 1000, porcentajeDiesel: 85, consumoHora: 15,
             ultimaRecarga: '2026-07-06', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
+            ats: { marca: 'ASCO', modelo: 'Serie 300', serial: 'SN-998877', voltaje: '220V', fase: 'Trifásico', frecuencia: '60Hz', fechaInstalacion: '2025-01-15' },
             repuestos: [{ tipo: 'Filtro de Aceite', marca: 'Fleetguard para Cummins', cantidad: 2, ultimaCompra: '2026-05-10', ultimoUso: '2026-06-01', historialCompras: [] }],
             mantenimientos: [{ fecha: '2026-06-01', tecnico: 'Maqui Motors', trabajo: 'Cambio de aceite y revisión general', repuesto: 'Ninguno', horasEnMantenimiento: 1200, proximoAgendamiento: 'A las 1500 hrs' }], 
             historialDiesel: [], historialEstados: []
@@ -460,7 +492,7 @@
         }
     ];
 
-    let equipos = JSON.parse(localStorage.getItem('listaEquiposV23')) || datosIniciales;
+    let equipos = JSON.parse(localStorage.getItem('listaEquiposV24')) || datosIniciales;
     let indexActual = null;
 
     const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
@@ -516,7 +548,7 @@
                 }
 
                 let tdExtras = '';
-                let estiloFila = ''; // Para resaltar si está vencido
+                let estiloFila = ''; 
                 let btnUsoRapido = '';
 
                 if (categoria === 'Equipos de Combustión') {
@@ -535,10 +567,10 @@
                             txtHorasFaltantes = `<span style="color:var(--primary); font-weight:bold;">Faltan ${faltan} ${unidadShort}</span>`;
                         } else if (faltan > 0 && faltan <= 50) {
                             txtHorasFaltantes = `<span style="color:#856404; font-weight:bold;">⚠️ Faltan ${faltan} ${unidadShort}</span>`;
-                            estiloFila = 'background-color: #fff3cd;'; // Amarillo prevención
+                            estiloFila = 'background-color: #fff3cd;'; 
                         } else {
                             txtHorasFaltantes = `<span style="color:#dc3545; font-weight:bold;">🚨 ¡Vencido! (${Math.abs(faltan)} ${unidadShort})</span>`;
-                            estiloFila = 'background-color: #ffe6e6;'; // Rojo alerta
+                            estiloFila = 'background-color: #ffe6e6;'; 
                         }
                     } else if (eq.tipoProximo === 'fecha' && eq.proximoValor) {
                         txtHorasFaltantes = `<small>Por fecha: ${eq.proximoValor}</small>`;
@@ -577,7 +609,7 @@
             contenedor.innerHTML = '<p style="color: #666; font-style: italic;">No hay equipos registrados en el inventario.</p>';
         }
 
-        localStorage.setItem('listaEquiposV23', JSON.stringify(equipos));
+        localStorage.setItem('listaEquiposV24', JSON.stringify(equipos));
     }
 
     document.getElementById('equipoForm').addEventListener('submit', function(e) {
@@ -599,10 +631,23 @@
         if (isCombustion) {
             primerMant = parseInt(document.getElementById('primerMantenimiento').value);
             if (!isNaN(primerMant)) {
-                tipoProx = 'horas'; // Guardado de la configuración inicial del mantenimiento
+                tipoProx = 'horas'; 
             } else {
                 primerMant = '';
             }
+        }
+
+        let objAts = null;
+        if (isCombustion && subCat === 'Generador Eléctrico') {
+            objAts = {
+                marca: document.getElementById('atsMarca').value.trim(),
+                modelo: document.getElementById('atsModelo').value.trim(),
+                serial: document.getElementById('atsSerial').value.trim(),
+                voltaje: document.getElementById('atsVoltaje').value.trim(),
+                fase: document.getElementById('atsFase').value,
+                frecuencia: document.getElementById('atsFrecuencia').value.trim(),
+                fechaInstalacion: document.getElementById('atsFechaInst').value
+            };
         }
         
         let nuevoEq = {
@@ -615,6 +660,8 @@
             consumoHora: isCombustion ? parseFloat(document.getElementById('consumoHora').value) : '',
             ultimaRecarga: 'N/A', ultimaSalida: 'N/A', ultimoAjuste: 'N/A',
             
+            ats: objAts,
+
             tipoGas: isFrio ? document.getElementById('tipoGas').value.trim() : '',
             compresorValor: isFrio ? document.getElementById('compresorValor').value.trim() : '',
             compresorUnidad: isFrio ? document.getElementById('compresorUnidad').value : '',
@@ -658,6 +705,7 @@
         const optDiesel = document.getElementById('optDiesel');
         const secHistDiesel = document.getElementById('seccionHistorialDiesel');
         const infoGasRefrigerante = document.getElementById('infoGasRefrigerante');
+        const infoATS = document.getElementById('infoATS');
         
         // --- Interfaz Combustión ---
         if(eq.categoria === 'Equipos de Combustión') {
@@ -676,12 +724,27 @@
             document.getElementById('mantHorometroActual').value = eq.horas || '';
             document.getElementById('modalConsumoTasa').innerText = eq.consumoHora || 0;
             actualizarInterfazDiesel(eq);
+
+            // Módulo ATS en Generadores
+            if(!esVehiculo) {
+                infoATS.style.display = 'block';
+                document.getElementById('modalAtsMarca').innerText = eq.ats?.marca || '--';
+                document.getElementById('modalAtsModelo').innerText = eq.ats?.modelo || '--';
+                document.getElementById('modalAtsSerial').innerText = eq.ats?.serial || '--';
+                document.getElementById('modalAtsVoltaje').innerText = eq.ats?.voltaje || '--';
+                document.getElementById('modalAtsFase').innerText = eq.ats?.fase || '--';
+                document.getElementById('modalAtsFrecuencia').innerText = eq.ats?.frecuencia || '--';
+                document.getElementById('modalAtsFecha').innerText = eq.ats?.fechaInstalacion || '--';
+            } else {
+                infoATS.style.display = 'none';
+            }
             
             let labelRutina = esVehiculo ? 'Sí, programar por Rutina (Km)' : 'Sí, programar por Rutina (Horómetro)';
             document.getElementById('selectTipoProximo').innerHTML = `<option value="horas">${labelRutina}</option><option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
         } else {
             panelGenerador.style.display = 'none'; divMantHorasLectura.style.display = 'none'; optDiesel.style.display = 'none'; secHistDiesel.style.display = 'none';
             document.getElementById('selectTipoProximo').innerHTML = `<option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
+            if(infoATS) infoATS.style.display = 'none';
         }
         
         // --- Interfaz Refrigeración ---
@@ -721,7 +784,7 @@
             eq.estado = nuevoEstado;
             if(!eq.historialEstados) eq.historialEstados = [];
             eq.historialEstados.unshift({ fecha: obtenerFechaHoy(), estado: nuevoEstado, motivo: motivo.trim() || 'Sin motivo especificado' });
-            localStorage.setItem('listaEquiposV23', JSON.stringify(equipos));
+            localStorage.setItem('listaEquiposV24', JSON.stringify(equipos));
             actualizarTabla(); 
             alert("Estado actualizado y guardado en el historial.");
         } else {
@@ -746,7 +809,7 @@
         if(nuevaTemp !== null && nuevaTemp.trim() !== "") {
             eq.temperaturaActual = parseFloat(nuevaTemp); eq.ultimaModificacionTemp = obtenerFechaHoy();
             document.getElementById('modalTempActual').innerText = eq.temperaturaActual; document.getElementById('lblUltimaTemp').innerText = eq.ultimaModificacionTemp;
-            localStorage.setItem('listaEquiposV23', JSON.stringify(equipos));
+            localStorage.setItem('listaEquiposV24', JSON.stringify(equipos));
         }
     }
 
@@ -765,14 +828,13 @@
             if(pct >= 0 && pct <= 100) { 
                 eq.porcentajeDiesel = pct; 
                 eq.ultimoAjuste = obtenerFechaHoy(); 
-                localStorage.setItem('listaEquiposV23', JSON.stringify(equipos));
+                localStorage.setItem('listaEquiposV24', JSON.stringify(equipos));
                 actualizarTabla();
                 actualizarInterfazDiesel(eq);
             }
         }
     }
 
-    // --- FUNCIÓN DE USO MODIFICADA PARA LLAMADA RÁPIDA Y ALERTAS ---
     function editarHorasManual(idx = indexActual) {
         let eq = equipos[idx];
         let esVehiculo = eq.subCategoria === 'Vehículos';
@@ -803,17 +865,15 @@
             
             eq.horas = nuevasHoras; 
             
-            // LÓGICA DE ALERTA AL SUPERAR EL MANTENIMIENTO
             if(eq.tipoProximo === 'horas' && eq.proximoValor) {
                 if(nuevasHoras >= parseInt(eq.proximoValor)) {
                     alert(`🚨 ¡ALERTA DE MANTENIMIENTO!\n\nEl equipo ${eq.codigo} ha alcanzado o superado el límite para su próximo servicio (${eq.proximoValor} ${esVehiculo ? 'Km' : 'hrs'}).\n\nPor favor, programe un mantenimiento a la brevedad.`);
                 }
             }
             
-            localStorage.setItem('listaEquiposV23', JSON.stringify(equipos)); 
-            actualizarTabla(); // Refresca la tabla principal
+            localStorage.setItem('listaEquiposV24', JSON.stringify(equipos)); 
+            actualizarTabla(); 
             
-            // Si se llamó desde dentro del modal y es el equipo actual
             if(indexActual === idx && document.getElementById('modalDetalles').style.display === 'block') {
                 document.getElementById('modalHoras').innerText = eq.horas; 
                 document.getElementById('mantHorometroActual').value = eq.horas;
@@ -836,7 +896,7 @@
         if(litrosActuales > capacidad) litrosActuales = capacidad; eq.porcentajeDiesel = (litrosActuales / capacidad) * 100;
         if(!eq.historialDiesel) eq.historialDiesel = []; eq.historialDiesel.unshift({ fecha, accion, litros: litrosInput, persona });
         
-        localStorage.setItem('listaEquiposV23', JSON.stringify(equipos)); 
+        localStorage.setItem('listaEquiposV24', JSON.stringify(equipos)); 
         actualizarTabla(); document.getElementById('formDiesel').reset(); document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro();
         actualizarInterfazDiesel(eq); renderizarHistorialDiesel();
     }
@@ -889,7 +949,7 @@
         
         eq.mantenimientos.unshift({ fecha, tecnico, trabajo, repuesto: repuestoTexto, horasEnMantenimiento: mHoras, proximoAgendamiento: proximoDestinoTexto });
         
-        localStorage.setItem('listaEquiposV23', JSON.stringify(equipos));
+        localStorage.setItem('listaEquiposV24', JSON.stringify(equipos));
         actualizarCabeceraProximoMantenimiento(eq); actualizarTabla(); document.getElementById('formMantenimiento').reset(); document.getElementById('mantFecha').value = obtenerFechaHoy();
         document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro(); alert("Mantenimiento guardado.");
         renderizarHistorial(); renderizarRepuestos(); actualizarDropdownRepuestos();
@@ -912,13 +972,13 @@
     function crearNuevoRepuesto() {
         const t = document.getElementById('nuevoCatTipo').value.trim(); const m = document.getElementById('nuevoCatDesc').value.trim(); if(!t || !m) return;
         equipos[indexActual].repuestos.push({ tipo: t, marca: m, cantidad: 0, ultimaCompra: 'N/A', ultimoUso: 'N/A', historialCompras: [] });
-        localStorage.setItem('listaEquiposV23', JSON.stringify(equipos)); document.getElementById('formNuevoRepuesto').reset(); document.getElementById('formNuevoRepuesto').style.display = 'none'; renderizarRepuestos(); actualizarDropdownRepuestos();
+        localStorage.setItem('listaEquiposV24', JSON.stringify(equipos)); document.getElementById('formNuevoRepuesto').reset(); document.getElementById('formNuevoRepuesto').style.display = 'none'; renderizarRepuestos(); actualizarDropdownRepuestos();
     }
     function abrirSumarStock(i) { let r = equipos[indexActual].repuestos[i]; document.getElementById('lblRepuestoCompra').innerText = `${r.tipo} (${r.marca})`; document.getElementById('idxRepuestoCompra').value = i; document.getElementById('divSumarStock').style.display = 'block'; }
     function confirmarSumaStock() {
         let idx = document.getElementById('idxRepuestoCompra').value; let cant = parseInt(document.getElementById('compraCant').value); let f = document.getElementById('compraFecha').value; let p = document.getElementById('compraProveedor').value; let t = document.getElementById('compraTipoTienda').value;
         let r = equipos[indexActual].repuestos[idx]; r.cantidad += cant; r.ultimaCompra = f; if(!r.historialCompras) r.historialCompras = []; r.historialCompras.unshift({ fecha: f, cantidad: cant, proveedor: p, tipoTienda: t });
-        localStorage.setItem('listaEquiposV23', JSON.stringify(equipos)); document.getElementById('divSumarStock').style.display = 'none'; renderizarRepuestos(); actualizarDropdownRepuestos();
+        localStorage.setItem('listaEquiposV24', JSON.stringify(equipos)); document.getElementById('divSumarStock').style.display = 'none'; renderizarRepuestos(); actualizarDropdownRepuestos();
     }
     function toggleCompras(i) { const d = document.getElementById(`compras-${i}`); d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
     function renderizarRepuestos() {
