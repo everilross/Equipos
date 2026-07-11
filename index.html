@@ -24,6 +24,7 @@
         .btn-danger { background-color: #dc3545; color: white; }
         .btn-info { background-color: #17a2b8; color: white; }
         .btn-success { background-color: var(--primary); color: white; }
+        .btn-small { padding: 4px 8px; font-size: 11px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 5px; background: #fff; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
         th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #ddd; }
@@ -79,7 +80,8 @@
             <h4 style="margin: 0; color: #0d47a1;">💾 Gestión de Datos (Respaldo)</h4>
             <p style="margin: 5px 0 0 0; font-size: 13px; color: #555;">Exporte o importe su base de datos para no perder información al actualizar el sistema.</p>
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+            <button onclick="imprimirReporteInventario()" style="background-color: #f37021;"><span style="font-size:16px;">🖨️</span> Imprimir Reporte de Inventario</button>
             <button onclick="exportarDatos()" style="background-color: #2196f3;"><span style="font-size:16px;">⬇️</span> Descargar Respaldo</button>
             <input type="file" id="fileImportar" style="display: none;" accept=".json" onchange="importarDatos(event)">
             <button onclick="document.getElementById('fileImportar').click()" style="background-color: #1565c0;"><span style="font-size:16px;">⬆️</span> Cargar Respaldo</button>
@@ -288,6 +290,7 @@
                     <small style="color: #555;">(<span id="modalDieselPorcentaje"></span>% de <span id="modalDieselCapacidad"></span> L)</small>
                     <button onclick="actualizarDieselManual()" style="background:transparent; border:none; cursor:pointer;" title="Ajustar porcentaje manual">✏️</button>
                     <div style="font-size: 11px; color: #856404; margin-top: 4px;">Tasa Consumo: <strong id="modalConsumoTasa"></strong> <span id="unidadConsumoModal">L/h</span></div>
+                    <div style="font-size: 13px; color: #dc3545; margin-top: 6px; font-weight:bold;">Sugerencia de Pedido: <span id="modalDieselPedir"></span> L</div>
                 </div>
                 <div style="text-align: right; font-size: 11px; color: #666; line-height: 1.4;">
                     <div>Última Recarga: <strong style="color: #333;" id="lblRecarga">--</strong></div>
@@ -354,8 +357,12 @@
                             <option value="Consumible">Consumible</option>
                         </select>
                     </div>
-                    <div style="flex: 1.5; min-width: 150px;"><label>Tipo/Descripción</label><input type="text" id="nuevoCatTipo" placeholder="Ej. Filtro de Aire, Aceite 15W40..." required></div>
+                    <div style="flex: 1.5; min-width: 150px;"><label>Tipo/Descripción</label><input type="text" id="nuevoCatTipo" placeholder="Ej. Filtro de Aire, Aceite..." required></div>
                     <div style="flex: 1.5; min-width: 150px;"><label>Marca / Modelo</label><input type="text" id="nuevoCatDesc" placeholder="Ej. Fleetguard, PDV..." required></div>
+                    <div style="flex: 1; min-width: 140px;">
+                        <label>Stock Mín. (Alerta)</label>
+                        <input type="number" id="nuevoCatMinimo" placeholder="Ej. 2" required min="0">
+                    </div>
                     <div style="flex: 1; min-width: 140px;">
                         <label>¿Es compartido?</label>
                         <select id="nuevoCatCompartido" onchange="toggleEquiposCompatibles()">
@@ -396,15 +403,36 @@
             </div>
 
             <div id="divAjusteStock" style="display: none; background: #fff3cd; padding: 15px; border-radius: 6px; margin-top: 10px; border: 1px solid #ffeeba;">
-                <h4 style="margin-top:0; color: #856404;">⚖️ Ajuste Manual de Inventario: <span id="lblRepuestoAjuste"></span></h4>
+                <h4 style="margin-top:0; color: #856404;">⚖️ Ajuste y Edición de Ítem: <span id="lblRepuestoAjuste"></span></h4>
                 <input type="hidden" id="idRepuestoAjuste">
                 <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width:120px;"><label>Cantidad (+ / -)</label><input type="number" id="ajusteCant" placeholder="Ej. -2 o 5" required title="Use números negativos para restar stock"></div>
-                    <div style="flex: 1; min-width:120px;"><label>Fecha del Ajuste</label><input type="date" id="ajusteFecha" required></div>
+                    <div style="flex: 1; min-width:120px;"><label>Cantidad (+ / -) <small>(Dejar vacío si no cambia)</small></label><input type="number" id="ajusteCant" placeholder="Ej. -2 o 5" title="Use números negativos para restar stock"></div>
+                    <div style="flex: 1; min-width:100px;"><label>Stock Mín.</label><input type="number" id="ajusteMinimo" min="0" required></div>
+                    <div style="flex: 1; min-width:120px;"><label>Fecha</label><input type="date" id="ajusteFecha" required></div>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width:140px;">
+                        <label>¿Es compartido?</label>
+                        <select id="ajusteCompartido" onchange="toggleAjusteEquiposCompatibles()">
+                            <option value="no">No, solo este equipo</option>
+                            <option value="si">Sí, con otros</option>
+                        </select>
+                    </div>
                     <div style="flex: 2; min-width:200px;"><label>Descripción / Motivo</label><input type="text" id="ajusteDesc" placeholder="Ej. Conteo físico, ítem dañado, merma..." required></div>
-                    <div style="margin-top: 10px;"><button type="button" class="btn-success" style="background:#f37021;" onclick="confirmarAjuste()">Guardar Ajuste</button><button type="button" class="btn-danger" onclick="document.getElementById('divAjusteStock').style.display='none'">X</button></div>
+                </div>
+                
+                <div id="divAjusteEquiposCompatibles" style="display:none; background: #fff; padding: 10px; border: 1px dashed #ccc; border-radius: 4px; margin-top: 10px;">
+                    <label style="color:#856404; margin-bottom: 5px; display:block;">Seleccione compatibilidad:</label>
+                    <div style="margin-bottom: 5px; font-size: 13px;">
+                        <input type="checkbox" id="chkAjusteTodosEquipos" onchange="toggleAjusteTodosEquiposCompatibles()"> 
+                        <label style="display:inline; font-weight:bold; color:#1565c0;" for="chkAjusteTodosEquipos">Seleccionar Todos los equipos</label>
+                    </div>
+                    <div id="listaAjusteCheckboxesEquipos" style="max-height: 100px; overflow-y: auto; border: 1px solid #eee; padding: 5px; font-size: 12px; background: #fafafa;"></div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <button type="button" class="btn-success" style="background:#f37021;" onclick="confirmarAjuste()">Guardar Cambios</button>
+                    <button type="button" class="btn-danger" onclick="document.getElementById('divAjusteStock').style.display='none'">X Cancelar</button>
                 </div>
             </div>
 
@@ -430,20 +458,29 @@
                 <label style="color: var(--primary); font-size: 14px;">¿Qué tipo de registro desea crear?</label>
                 <select id="tipoRegistroGlobal" onchange="toggleFormulariosRegistro()" style="border-color: var(--primary); font-weight: bold; font-size: 15px;">
                     <option value="">-- Seleccionar Acción --</option>
-                    <option value="mantenimiento">🔧 Mantenimiento Técnico / Revisión</option>
+                    <option value="mantenimiento">🔧 Mantenimiento Técnico</option>
+                    <option value="revision" id="optRevision" style="display:none;">📋 Revisión de Rutina / Diaria</option>
                     <option value="diesel" id="optDiesel" style="display:none;">⛽ Gestión de Combustible (Ingreso/Salida)</option>
                 </select>
             </div>
 
             <form id="formMantenimiento" style="display:none; background:#fff; padding:15px; border-radius:6px; border:1px solid #ccc;">
-                <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <div style="flex: 2;"><label>Repuesto/Consumible Utilizado</label><select id="mantRepuestoSelect" onchange="toggleMantenimientoRapido()"></select></div>
-                    <div style="flex: 0.8;"><label>Cant. Usada</label><input type="number" id="mantCantRep" min="1" value="1"></div>
+                <div style="background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px;">
+                    <label style="color: #0d47a1; margin-bottom: 8px;">📦 Repuestos/Consumibles a utilizar en este trabajo</label>
+                    <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 2; min-width: 200px;"><select id="mantRepuestoSelect" onchange="toggleMantenimientoRapido()"></select></div>
+                        <div style="flex: 0.8; min-width: 80px;"><label>Cant.</label><input type="number" id="mantCantRep" min="1" value="1"></div>
+                        <button type="button" class="btn-info" onclick="agregarRepuestoMantenimiento()" style="height: 35px; margin-bottom: 1px;">➕ Agregar Ítem</button>
+                    </div>
+                    <div id="divNuevoRepMant" style="display: none; gap: 10px; margin-top: 10px; background: #fff8e1; padding: 10px; border-radius: 4px;">
+                        <div style="flex: 1;"><label>Nuevo Tipo</label><input type="text" id="nuevoRepTipo" placeholder="Ej. Filtro de Aceite"></div>
+                        <div style="flex: 1;"><label>Nueva Marca</label><input type="text" id="nuevoRepDesc" placeholder="Ej. Wix"></div>
+                    </div>
+                    
+                    <ul id="listaMantenimientoRepuestos" style="list-style: none; padding: 0; margin: 10px 0 0 0; font-size: 13px;">
+                        </ul>
                 </div>
-                <div id="divNuevoRepMant" style="display: none; gap: 10px; margin-bottom: 15px; background: #fff8e1; padding: 10px; border-radius: 4px;">
-                    <div style="flex: 1;"><label>Nuevo Tipo</label><input type="text" id="nuevoRepTipo"></div>
-                    <div style="flex: 1;"><label>Nueva Marca</label><input type="text" id="nuevoRepDesc"></div>
-                </div>
+                
                 <div class="form-group"><label>Trabajo realizado (Detalles)</label><input type="text" id="mantTrabajo" required></div>
                 <div id="divMantHorasLectura" style="display: none; margin-bottom: 15px;"><label id="lblLecturaMant">Lectura del Horómetro al realizar este trabajo</label><input type="number" id="mantHorometroActual"></div>
                 
@@ -463,6 +500,36 @@
                     <div style="flex: 1;"><label>Fecha</label><input type="date" id="mantFecha" required></div>
                 </div>
                 <button type="button" class="btn-success" style="margin-top: 15px; width: 100%; font-size: 15px;" onclick="guardarMantenimiento()">Registrar Mantenimiento</button>
+            </form>
+
+            <form id="formRevision" style="display:none; background:#fff8e1; padding:15px; border-radius:6px; border:1px solid #ffeeba;">
+                <h4 style="margin-top:0; color:#b08a00; border-bottom:1px solid #ffeeba; padding-bottom:5px;">📋 Revisión y Actualización Diaria</h4>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;"><label id="lblRevHorometro">Horómetro Actual</label><input type="number" id="revHorometro" min="0" required></div>
+                    <div style="flex: 1; min-width: 140px;"><label>Nivel Combustible (%)</label><input type="number" id="revCombustible" min="0" max="100" required></div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
+                        <label>Nivel de Aceite</label>
+                        <select id="revAceite">
+                            <option value="Óptimo">✅ Óptimo / Bien</option>
+                            <option value="Requiere Atención">⚠️ Requiere Atención</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 140px;">
+                        <label>Nivel Refrigerante</label>
+                        <select id="revRefrigerante">
+                            <option value="Óptimo">✅ Óptimo / Bien</option>
+                            <option value="Requiere Atención">⚠️ Requiere Atención</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;"><label>Persona que revisa</label><input type="text" id="revPersona" placeholder="Ej. Juan Pérez" required></div>
+                    <div style="flex: 1; min-width: 140px;"><label>Fecha</label><input type="date" id="revFecha" required></div>
+                </div>
+                <div style="margin-bottom: 15px;"><label>Observación Adicional</label><input type="text" id="revObservacion" placeholder="Opcional. Ej. Fuga leve detectada..."></div>
+                <button type="button" class="btn-success" style="width: 100%; font-size: 15px; background: #f37021;" onclick="guardarRevision()">Guardar Revisión</button>
             </form>
 
             <form id="formDiesel" style="display:none; background:#fff; padding:15px; border-radius:6px; border:1px solid #ccc;">
@@ -501,7 +568,13 @@
 <script>
     const SUCURSALES = ['Turmero', 'El Limón'];
 
-    // --- NUEVAS FUNCIONES DE RESPALDO (EXPORTAR / IMPORTAR) ---
+    let equipos = JSON.parse(localStorage.getItem('listaEquiposV30')) || [];
+    let repuestosGlobales = JSON.parse(localStorage.getItem('repuestosV30')) || [];
+    let indexActual = null;
+    let repuestosMantenimientoTemp = [];
+
+    const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
+
     function exportarDatos() {
         const data = {
             equipos: equipos,
@@ -532,7 +605,6 @@
                     if(confirm("⚠️ ATENCIÓN: Esto sobrescribirá todos los datos actuales con los del archivo de respaldo seleccionado. ¿Está completamente seguro de continuar?")) {
                         equipos = data.equipos;
                         repuestosGlobales = data.repuestos;
-                        // Guardamos en la misma versión de la base de datos local
                         localStorage.setItem('listaEquiposV30', JSON.stringify(equipos));
                         localStorage.setItem('repuestosV30', JSON.stringify(repuestosGlobales));
                         actualizarTabla();
@@ -647,7 +719,15 @@
     function toggleFormulariosRegistro() {
         const sel = document.getElementById('tipoRegistroGlobal').value;
         document.getElementById('formMantenimiento').style.display = sel === 'mantenimiento' ? 'block' : 'none';
+        document.getElementById('formRevision').style.display = sel === 'revision' ? 'block' : 'none';
         document.getElementById('formDiesel').style.display = sel === 'diesel' ? 'block' : 'none';
+
+        if(sel === 'revision' && indexActual !== null) {
+            let eq = equipos[indexActual];
+            document.getElementById('revHorometro').value = eq.horas || '';
+            document.getElementById('revCombustible').value = eq.porcentajeDiesel || '';
+            document.getElementById('lblRevHorometro').innerText = (eq.subCategoria === 'Vehículos') ? 'Kilometraje Actual' : 'Horómetro Actual';
+        }
     }
 
     function cambiarTextosDiesel() {
@@ -664,12 +744,6 @@
         document.getElementById('divProximoHoras').style.display = (sel === 'horas' && eq.categoria === 'Equipos de Combustión') ? 'block' : 'none';
         document.getElementById('divProximoFecha').style.display = sel === 'fecha' ? 'block' : 'none';
     }
-
-    let equipos = JSON.parse(localStorage.getItem('listaEquiposV30')) || [];
-    let repuestosGlobales = JSON.parse(localStorage.getItem('repuestosV30')) || [];
-    let indexActual = null;
-
-    const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
 
     function actualizarTabla() {
         const contenedor = document.getElementById('contenedorInventario');
@@ -705,7 +779,8 @@
                 if (categoria === 'Equipos de Combustión') {
                     let cap = parseFloat(eq.capacidadTanque) || 0; let pct = parseFloat(eq.porcentajeDiesel) || 0; let litros = (cap * pct) / 100;
                     let colorCombustible = pct <= 20 ? '#dc3545' : '#0056b3';
-                    let txtCombustible = `<span style="color:${colorCombustible}; font-weight:bold;">${litros.toFixed(1)} L</span><br><small style="color:#666;">(${pct.toFixed(0)}%)</small>`;
+                    let pedir = cap - litros;
+                    let txtCombustible = `<span style="color:${colorCombustible}; font-weight:bold;">${litros.toFixed(1)} L</span><br><small style="color:#666;">(${pct.toFixed(0)}%) | Pedir: ${pedir.toFixed(1)} L</small>`;
 
                     let txtHorasFaltantes = '<small style="color:#888;">No pautado</small>'; let unidadShort = eq.subCategoria === 'Vehículos' ? 'Km' : 'h';
                     if (eq.tipoProximo === 'horas' && eq.proximoValor) {
@@ -796,10 +871,15 @@
         document.getElementById('modalCambioEstado').value = eq.estado;
         
         document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro();
-        document.getElementById('mantFecha').value = obtenerFechaHoy(); document.getElementById('dieselFecha').value = obtenerFechaHoy();
+        document.getElementById('mantFecha').value = obtenerFechaHoy(); 
+        document.getElementById('dieselFecha').value = obtenerFechaHoy();
+        document.getElementById('revFecha').value = obtenerFechaHoy();
         
+        // Limpiar lista temporal de mantenimientos al abrir
+        repuestosMantenimientoTemp = []; renderizarListaMantenimientoTemp();
+
         const panelGenerador = document.getElementById('panelGenerador'); const panelRefrigeracion = document.getElementById('panelRefrigeracion');
-        const divMantHorasLectura = document.getElementById('divMantHorasLectura'); const optDiesel = document.getElementById('optDiesel');
+        const divMantHorasLectura = document.getElementById('divMantHorasLectura'); const optDiesel = document.getElementById('optDiesel'); const optRevision = document.getElementById('optRevision');
         const secHistDiesel = document.getElementById('seccionHistorialDiesel'); const infoGasRefrigerante = document.getElementById('infoGasRefrigerante');
         const infoFrescos = document.getElementById('infoFrescos'); const infoATS = document.getElementById('infoATS');
         const divReemplazarATS = document.getElementById('divReemplazarATS');
@@ -807,7 +887,7 @@
         divReemplazarATS.style.display = 'none'; document.getElementById('divTrasladarStock').style.display = 'none'; document.getElementById('divAjusteStock').style.display = 'none';
 
         if(eq.categoria === 'Equipos de Combustión') {
-            panelGenerador.style.display = 'flex'; divMantHorasLectura.style.display = 'block'; optDiesel.style.display = 'block'; secHistDiesel.style.display = 'block';
+            panelGenerador.style.display = 'flex'; divMantHorasLectura.style.display = 'block'; optDiesel.style.display = 'block'; optRevision.style.display = 'block'; secHistDiesel.style.display = 'block';
             let esVehiculo = eq.subCategoria === 'Vehículos';
             document.getElementById('iconoUsoModal').innerText = esVehiculo ? '🚗' : '⏱️'; document.getElementById('labelUsoModal').innerText = esVehiculo ? 'Kilometraje' : 'Horómetro';
             document.getElementById('unidadUsoModal').innerText = esVehiculo ? 'Km' : 'hrs'; document.getElementById('unidadConsumoModal').innerText = esVehiculo ? 'L/Km' : 'L/h';
@@ -825,7 +905,7 @@
             let labelRutina = esVehiculo ? 'Sí, programar por Rutina (Km)' : 'Sí, programar por Rutina (Horómetro)';
             document.getElementById('selectTipoProximo').innerHTML = `<option value="horas">${labelRutina}</option><option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
         } else {
-            panelGenerador.style.display = 'none'; divMantHorasLectura.style.display = 'none'; optDiesel.style.display = 'none'; secHistDiesel.style.display = 'none';
+            panelGenerador.style.display = 'none'; divMantHorasLectura.style.display = 'none'; optDiesel.style.display = 'none'; optRevision.style.display = 'none'; secHistDiesel.style.display = 'none';
             document.getElementById('selectTipoProximo').innerHTML = `<option value="fecha">Sí, programar por Fecha</option><option value="no">No agendar</option>`;
             if(infoATS) infoATS.style.display = 'none';
         }
@@ -899,7 +979,9 @@
 
     function actualizarInterfazDiesel(eq) {
         const cap = parseFloat(eq.capacidadTanque) || 0; const pct = parseFloat(eq.porcentajeDiesel) || 0; const litros = (cap * pct) / 100;
+        const pedir = cap - litros;
         document.getElementById('modalDieselCapacidad').innerText = cap; document.getElementById('modalDieselPorcentaje').innerText = pct.toFixed(1); document.getElementById('modalDieselLitros').innerText = litros.toFixed(1);
+        document.getElementById('modalDieselPedir').innerText = pedir.toFixed(1);
         document.getElementById('lblRecarga').innerText = eq.ultimaRecarga || 'N/A'; document.getElementById('lblSalida').innerText = eq.ultimaSalida || 'N/A'; document.getElementById('lblAjuste').innerText = eq.ultimoAjuste || 'N/A';
     }
 
@@ -970,29 +1052,136 @@
 
     function cerrarModal() { document.getElementById('modalDetalles').style.display = 'none'; document.getElementById('tipoRegistroGlobal').value = ''; toggleFormulariosRegistro(); }
 
+    function agregarRepuestoMantenimiento() {
+        const select = document.getElementById('mantRepuestoSelect');
+        const idRep = select.value;
+        const cant = parseInt(document.getElementById('mantCantRep').value) || 1;
+        
+        if(!idRep) return alert("Seleccione un repuesto o consumible.");
+        
+        let obj = { id: idRep, cant: cant };
+        
+        if (idRep === 'nuevo') {
+            const nTipo = document.getElementById('nuevoRepTipo').value.trim(); 
+            const nMarca = document.getElementById('nuevoRepDesc').value.trim();
+            if(!nTipo) return alert("Escribe el tipo del ítem nuevo."); 
+            obj.esNuevo = true;
+            obj.tipo = nTipo;
+            obj.marca = nMarca;
+            obj.texto = `[NUEVO] ${nTipo} (${nMarca})`;
+        } else {
+            let r = repuestosGlobales.find(x => x.id == idRep);
+            obj.esNuevo = false;
+            obj.tipo = r.tipo;
+            obj.marca = r.marca;
+            obj.texto = `${r.tipo} (${r.marca})`;
+        }
+        
+        repuestosMantenimientoTemp.push(obj);
+        renderizarListaMantenimientoTemp();
+        
+        document.getElementById('mantRepuestoSelect').value = '';
+        document.getElementById('mantCantRep').value = '1';
+        document.getElementById('nuevoRepTipo').value = '';
+        document.getElementById('nuevoRepDesc').value = '';
+        toggleMantenimientoRapido();
+    }
+
+    function renderizarListaMantenimientoTemp() {
+        const ul = document.getElementById('listaMantenimientoRepuestos');
+        ul.innerHTML = '';
+        repuestosMantenimientoTemp.forEach((r, idx) => {
+            ul.innerHTML += `<li style="background:#eef2f7; padding:8px 12px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; border-radius:4px; border-left:3px solid var(--primary);">
+                <span><strong>${r.cant}x</strong> ${r.texto}</span>
+                <button type="button" class="btn-danger btn-small" style="padding:4px 8px; border-radius:4px;" onclick="quitarRepuestoMantenimiento(${idx})">X</button>
+            </li>`;
+        });
+    }
+
+    function quitarRepuestoMantenimiento(idx) {
+        repuestosMantenimientoTemp.splice(idx, 1);
+        renderizarListaMantenimientoTemp();
+    }
+
+    function guardarRevision() {
+        let eq = equipos[indexActual];
+        let horometroNuevo = parseInt(document.getElementById('revHorometro').value);
+        let pctNuevo = parseFloat(document.getElementById('revCombustible').value);
+        let aceite = document.getElementById('revAceite').value;
+        let refrig = document.getElementById('revRefrigerante').value;
+        let tecnico = document.getElementById('revPersona').value.trim();
+        let fecha = document.getElementById('revFecha').value;
+        let obs = document.getElementById('revObservacion').value.trim();
+
+        if(!tecnico || isNaN(horometroNuevo) || isNaN(pctNuevo)) return alert("Complete los datos numéricos y el responsable de la revisión.");
+
+        let pctAnterior = parseFloat(eq.porcentajeDiesel) || 0;
+        if (pctNuevo !== pctAnterior) {
+            let cap = parseFloat(eq.capacidadTanque) || 0;
+            let difLitros = Math.abs((pctNuevo - pctAnterior) * cap / 100);
+            let accionStr = pctNuevo > pctAnterior ? 'ingreso' : 'salida';
+            if(!eq.historialDiesel) eq.historialDiesel = [];
+            eq.historialDiesel.unshift({ fecha: fecha, accion: accionStr, litros: difLitros.toFixed(1), persona: 'Ajuste en Revisión: ' + tecnico });
+            if(accionStr === 'salida') eq.ultimaSalida = fecha; else eq.ultimaRecarga = fecha;
+            eq.ultimoAjuste = fecha;
+        }
+
+        eq.horas = horometroNuevo;
+        eq.porcentajeDiesel = pctNuevo;
+
+        let trabajoDesc = `📋 REVISIÓN DIARIA/RUTINA. Aceite: ${aceite} | Refrigerante: ${refrig}`;
+        if(obs) trabajoDesc += ` | Obs: ${obs}`;
+
+        if(!eq.mantenimientos) eq.mantenimientos = [];
+        let proxStr = eq.mantenimientos.length > 0 ? eq.mantenimientos[0].proximoAgendamiento : 'No asignado';
+        
+        eq.mantenimientos.unshift({ fecha: fecha, tecnico: tecnico, trabajo: trabajoDesc, repuesto: 'N/A (Chequeo Visual)', horasEnMantenimiento: horometroNuevo, proximoAgendamiento: proxStr });
+
+        localStorage.setItem('listaEquiposV30', JSON.stringify(equipos));
+        
+        actualizarTabla(); 
+        document.getElementById('formRevision').reset(); 
+        document.getElementById('tipoRegistroGlobal').value = ""; 
+        toggleFormulariosRegistro(); 
+        
+        document.getElementById('modalHoras').innerText = eq.horas;
+        actualizarInterfazDiesel(eq); 
+        renderizarHistorialDiesel();
+        renderizarHistorial();
+        actualizarCabeceraProximoMantenimiento(eq);
+        
+        alert("✅ Revisión registrada y parámetros actualizados exitosamente.");
+    }
+
     function guardarMantenimiento() {
         let eq = equipos[indexActual]; const fecha = document.getElementById('mantFecha').value; const tecnico = document.getElementById('mantTecnico').value; const trabajo = document.getElementById('mantTrabajo').value;
-        const repSeleccionado = document.getElementById('mantRepuestoSelect').value; const cantUsada = parseInt(document.getElementById('mantCantRep').value) || 0; const tipoProximoSeleccionado = document.getElementById('selectTipoProximo').value;
+        const tipoProximoSeleccionado = document.getElementById('selectTipoProximo').value;
         if(!tecnico || !trabajo) return alert("Complete campos obligatorios."); 
         
-        let repuestoTexto = "Ninguno";
+        let repuestosGuardados = [];
         
-        if(repSeleccionado !== "" && repSeleccionado !== "nuevo") {
-            let r = repuestosGlobales.find(x => x.id == repSeleccionado);
-            if(r.cantidad < cantUsada) r.cantidad = 0; else r.cantidad -= cantUsada;
-            if(!r.historialMovimientos) r.historialMovimientos = [];
-            r.historialMovimientos.unshift({ fecha: fecha, accion: 'Uso en Equipo', detalle: `Instalado en ${eq.codigo}`, cant: `-${cantUsada}` });
-            repuestoTexto = `${cantUsada}x ${r.tipo} (${r.marca})`;
-        } else if (repSeleccionado === "nuevo") {
-            const nTipo = document.getElementById('nuevoRepTipo').value.trim(); const nMarca = document.getElementById('nuevoRepDesc').value.trim();
-            if(!nTipo) return alert("Escribe el tipo del ítem."); 
-            repuestosGlobales.push({
-                id: 'R' + Date.now(), clasificacion: 'Repuesto', tipo: nTipo, marca: nMarca, sucursal: eq.ubicacion, cantidad: 0, precio: 0, ultimaModificacion: fecha, equiposCompatibles: [eq.codigo],
-                historialMovimientos: [{ fecha: fecha, accion: 'Uso Inmediato', detalle: `Instalado en ${eq.codigo}`, cant: `-${cantUsada}` }]
-            });
-            repuestoTexto = `${cantUsada}x ${nTipo} (${nMarca})`;
-        }
+        repuestosMantenimientoTemp.forEach(item => {
+            if (item.esNuevo) {
+                let nuevoId = 'R' + Date.now() + Math.floor(Math.random() * 1000);
+                repuestosGlobales.push({
+                    id: nuevoId, clasificacion: 'Repuesto', tipo: item.tipo, marca: item.marca, sucursal: eq.ubicacion, cantidad: 0, precio: 0, stockMinimo: 0, ultimaModificacion: fecha, equiposCompatibles: [eq.codigo],
+                    historialMovimientos: [{ fecha: fecha, accion: 'Uso Inmediato', detalle: `Instalado en ${eq.codigo}`, cant: `-${item.cant}` }]
+                });
+                repuestosGuardados.push(`${item.cant}x ${item.tipo} (${item.marca})`);
+            } else {
+                let r = repuestosGlobales.find(x => x.id == item.id);
+                if (r) {
+                    if(r.cantidad < item.cant) r.cantidad = 0; else r.cantidad -= item.cant;
+                    if(!r.historialMovimientos) r.historialMovimientos = [];
+                    r.historialMovimientos.unshift({ fecha: fecha, accion: 'Uso en Equipo', detalle: `Instalado en ${eq.codigo}`, cant: `-${item.cant}` });
+                    repuestosGuardados.push(`${item.cant}x ${r.tipo} (${r.marca})`);
+                }
+            }
+        });
+
         localStorage.setItem('repuestosV30', JSON.stringify(repuestosGlobales));
+        
+        let repuestoTexto = repuestosGuardados.length > 0 ? repuestosGuardados.join(" | ") : "Ninguno";
         
         let mHoras = eq.categoria === 'Equipos de Combustión' ? document.getElementById('mantHorometroActual').value : ""; if(mHoras !== "") eq.horas = parseInt(mHoras);
         let proximoDestinoTexto = "No reagendado"; eq.tipoProximo = tipoProximoSeleccionado;
@@ -1005,6 +1194,8 @@
         localStorage.setItem('listaEquiposV30', JSON.stringify(equipos));
         
         actualizarCabeceraProximoMantenimiento(eq); actualizarTabla(); document.getElementById('formMantenimiento').reset(); document.getElementById('mantFecha').value = obtenerFechaHoy(); document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro(); alert("Mantenimiento guardado.");
+        
+        repuestosMantenimientoTemp = []; renderizarListaMantenimientoTemp();
         renderizarHistorial(); renderizarRepuestos(); actualizarDropdownRepuestos(); if(eq.categoria === 'Equipos de Combustión') document.getElementById('modalHoras').innerText = eq.horas;
     }
 
@@ -1014,7 +1205,7 @@
         let unidadH = equipos[indexActual].subCategoria === 'Vehículos' ? 'Km' : 'hrs';
         mants.forEach(m => {
             let desgloseHoras = m.horasEnMantenimiento ? ` | ⏱️ ${unidadH}: ${m.horasEnMantenimiento}` : '';
-            contenedor.innerHTML += `<div class="historial-box"><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><strong>📅 ${m.fecha}${desgloseHoras}</strong> <span style="color:var(--primary); font-weight:bold;">🧑‍🔧 ${m.tecnico}</span></div><div style="margin-bottom: 4px;">📝 ${m.trabajo}</div><div style="display:flex; gap:5px; flex-wrap:wrap;"><span style="font-size: 11px; color: #555; background: #eef; padding: 3px 6px; border-radius: 3px;">⚙️ Ítem: ${m.repuesto}</span><span style="font-size: 11px; color: #28a745; background: #e8f5e9; padding: 3px 6px; border-radius: 3px; font-weight:bold;">📋 Control Siguiente: ${m.proximoAgendamiento}</span></div></div>`;
+            contenedor.innerHTML += `<div class="historial-box"><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><strong>📅 ${m.fecha}${desgloseHoras}</strong> <span style="color:var(--primary); font-weight:bold;">🧑‍🔧 ${m.tecnico}</span></div><div style="margin-bottom: 4px;">📝 ${m.trabajo}</div><div style="display:flex; gap:5px; flex-wrap:wrap;"><span style="font-size: 11px; color: #555; background: #eef; padding: 3px 6px; border-radius: 3px; display:block; width:100%;">⚙️ Ítems: ${m.repuesto}</span><span style="font-size: 11px; color: #28a745; background: #e8f5e9; padding: 3px 6px; border-radius: 3px; font-weight:bold; margin-top:2px;">📋 Control Siguiente: ${m.proximoAgendamiento}</span></div></div>`;
         });
     }
 
@@ -1025,6 +1216,7 @@
         document.getElementById('divTrasladarStock').style.display = 'none';
         
         document.getElementById('nuevoCatCompartido').value = 'no';
+        document.getElementById('nuevoCatMinimo').value = '';
         document.getElementById('divEquiposCompatibles').style.display = 'none';
         document.getElementById('chkTodosEquipos').checked = false;
         document.getElementById('nuevoCatClasificacion').value = 'Repuesto';
@@ -1054,6 +1246,7 @@
         const t = document.getElementById('nuevoCatTipo').value.trim(); 
         const m = document.getElementById('nuevoCatDesc').value.trim(); 
         const clasif = document.getElementById('nuevoCatClasificacion').value;
+        const minStock = parseInt(document.getElementById('nuevoCatMinimo').value) || 0;
         if(!t || !m) return;
         
         let sucActual = equipos[indexActual].ubicacion;
@@ -1070,7 +1263,7 @@
         }
         
         repuestosGlobales.push({ 
-            id: 'R' + Date.now(), clasificacion: clasif, tipo: t, marca: m, sucursal: sucActual, cantidad: 0, precio: 0, ultimaModificacion: obtenerFechaHoy(), equiposCompatibles: compartidos,
+            id: 'R' + Date.now(), clasificacion: clasif, tipo: t, marca: m, sucursal: sucActual, cantidad: 0, precio: 0, stockMinimo: minStock, ultimaModificacion: obtenerFechaHoy(), equiposCompatibles: compartidos,
             historialMovimientos: [{fecha: obtenerFechaHoy(), accion: 'Creación', detalle: 'Agregado al catálogo local', cant: '0'}] 
         });
         
@@ -1118,7 +1311,26 @@
         document.getElementById('idRepuestoAjuste').value = id; 
         document.getElementById('ajusteFecha').value = obtenerFechaHoy();
         document.getElementById('ajusteCant').value = '';
-        document.getElementById('ajusteDesc').value = '';
+        document.getElementById('ajusteDesc').value = 'Actualización de registro';
+        document.getElementById('ajusteMinimo').value = r.stockMinimo || 0;
+        
+        let eqActualCodigo = equipos[indexActual].codigo;
+        let esCompartido = r.equiposCompatibles && (r.equiposCompatibles.includes('TODOS') || r.equiposCompatibles.length > 1 || !r.equiposCompatibles.includes(eqActualCodigo));
+        document.getElementById('ajusteCompartido').value = esCompartido ? 'si' : 'no';
+        
+        let sucActual = equipos[indexActual].ubicacion;
+        let contenedorChk = document.getElementById('listaAjusteCheckboxesEquipos');
+        contenedorChk.innerHTML = '';
+        
+        equipos.filter(e => e.ubicacion === sucActual).forEach(e => {
+            let isChecked = r.equiposCompatibles && (r.equiposCompatibles.includes('TODOS') || r.equiposCompatibles.includes(e.codigo));
+            let checkedStr = isChecked ? 'checked' : '';
+            let disabledStr = (e.codigo === eqActualCodigo) ? 'checked disabled title="Obligatorio para este equipo"' : '';
+            contenedorChk.innerHTML += `<div style="margin-bottom:4px;"><input type="checkbox" class="chk-ajuste-equipo-comp" value="${e.codigo}" ${checkedStr} ${disabledStr}> <strong>${e.codigo}</strong> - ${e.nombre}</div>`;
+        });
+        
+        document.getElementById('chkAjusteTodosEquipos').checked = r.equiposCompatibles && r.equiposCompatibles.includes('TODOS');
+        toggleAjusteEquiposCompatibles();
         
         document.getElementById('divAjusteStock').style.display = 'block'; 
         document.getElementById('divSumarStock').style.display = 'none'; 
@@ -1126,22 +1338,57 @@
         document.getElementById('divTrasladarStock').style.display = 'none';
     }
 
+    function toggleAjusteEquiposCompatibles() {
+        document.getElementById('divAjusteEquiposCompatibles').style.display = document.getElementById('ajusteCompartido').value === 'si' ? 'block' : 'none';
+    }
+
+    function toggleAjusteTodosEquiposCompatibles() {
+        let isChecked = document.getElementById('chkAjusteTodosEquipos').checked;
+        let chks = document.querySelectorAll('.chk-ajuste-equipo-comp:not(:disabled)');
+        chks.forEach(c => c.checked = isChecked);
+    }
+
     function confirmarAjuste() {
         let id = document.getElementById('idRepuestoAjuste').value; 
-        let cant = parseInt(document.getElementById('ajusteCant').value); 
+        let cantStr = document.getElementById('ajusteCant').value; 
+        let cant = cantStr !== '' ? parseInt(cantStr) : 0; 
         let f = document.getElementById('ajusteFecha').value; 
         let desc = document.getElementById('ajusteDesc').value.trim();
-        if(isNaN(cant) || !desc) return alert("Complete la cantidad y la descripción del ajuste."); 
+        let minStock = parseInt(document.getElementById('ajusteMinimo').value) || 0;
+        
+        if(!desc) return alert("Indique un motivo o descripción."); 
         
         let r = repuestosGlobales.find(x => x.id == id); 
         if((r.cantidad + cant) < 0) return alert("El ajuste no puede dejar el stock en valores negativos.");
 
-        r.cantidad += cant; 
+        r.stockMinimo = minStock;
+        
+        let eqActualCodigo = equipos[indexActual].codigo;
+        let compartidos = [eqActualCodigo];
+        
+        if (document.getElementById('ajusteCompartido').value === 'si') {
+            if (document.getElementById('chkAjusteTodosEquipos').checked) {
+                compartidos = ['TODOS'];
+            } else {
+                let chks = document.querySelectorAll('.chk-ajuste-equipo-comp:checked');
+                chks.forEach(c => { if(!compartidos.includes(c.value)) compartidos.push(c.value); });
+            }
+        }
+        r.equiposCompatibles = compartidos;
+
+        let logDetails = [];
+        if (cant !== 0) {
+            r.cantidad += cant; 
+            logDetails.push(`Stock: ${cant > 0 ? '+'+cant : cant}`);
+        }
+        logDetails.push(`Min: ${minStock}`);
+        
         r.ultimaModificacion = f; 
         
         if(!r.historialMovimientos) r.historialMovimientos = []; 
-        let strCant = cant >= 0 ? `+${cant}` : `${cant}`;
-        r.historialMovimientos.unshift({ fecha: f, accion: 'Ajuste Manual', detalle: desc, cant: strCant });
+        let strAccion = cant !== 0 ? 'Ajuste Manual' : 'Edición de Atributos';
+        let strCant = cant !== 0 ? (cant > 0 ? `+${cant}` : `${cant}`) : '0';
+        r.historialMovimientos.unshift({ fecha: f, accion: strAccion, detalle: desc + ` [${logDetails.join(', ')}]`, cant: strCant });
         
         localStorage.setItem('repuestosV30', JSON.stringify(repuestosGlobales)); 
         document.getElementById('divAjusteStock').style.display = 'none'; 
@@ -1197,7 +1444,7 @@
             rDestino.historialMovimientos.unshift({ fecha: fecha, accion: 'Ingreso por Traslado', detalle: `Recibido de sucursal ${rOrigen.sucursal}`, cant: `+${cant}` });
         } else {
             repuestosGlobales.push({
-                id: 'R' + Date.now(), clasificacion: rOrigen.clasificacion || 'Repuesto', tipo: rOrigen.tipo, marca: rOrigen.marca, sucursal: dest, cantidad: cant, precio: rOrigen.precio || 0, ultimaModificacion: fecha,
+                id: 'R' + Date.now(), clasificacion: rOrigen.clasificacion || 'Repuesto', tipo: rOrigen.tipo, marca: rOrigen.marca, sucursal: dest, cantidad: cant, precio: rOrigen.precio || 0, stockMinimo: rOrigen.stockMinimo || 0, ultimaModificacion: fecha,
                 equiposCompatibles: eqDestino === 'TODOS' ? ['TODOS'] : [eqDestino],
                 historialMovimientos: [{ fecha: fecha, accion: 'Ingreso por Traslado', detalle: `Recibido de sucursal ${rOrigen.sucursal}`, cant: `+${cant}` }]
             });
@@ -1228,14 +1475,17 @@
             let etiquetaPrecio = `Precio: $${r.precio || 0}`;
             let fechaMov = r.ultimaModificacion || r.ultimaCompra || 'N/A';
             
+            let minStock = r.stockMinimo || 0;
+            let alertStock = r.cantidad <= minStock ? '<span style="color:#dc3545; font-size:11px; font-weight:bold; margin-left:10px; border:1px solid #dc3545; padding:1px 4px; border-radius:3px; background:#ffe6e6;">⚠️ Pedir Stock</span>' : '';
+            
             if(r.historialMovimientos) r.historialMovimientos.forEach(ch => tbl += `<tr><td>${ch.fecha}</td><td style="color:${ch.cant.includes('-') ? 'red' : 'green'};font-weight:bold;">${ch.cant}</td><td>${ch.accion}</td><td>${ch.detalle}</td></tr>`);
             
             c.innerHTML += `<li class="${cz}">
                 <div style="display:flex; justify-content:space-between; width:100%;">
                     <div>
-                        <strong>${r.tipo}</strong> (${r.marca}) ${etiquetaCompartido}<br>
+                        <strong>${r.tipo}</strong> (${r.marca}) ${etiquetaCompartido} ${alertStock}<br>
                         <div style="font-size:12px; margin-top:2px;">${etiquetaClasif} | <strong>${etiquetaPrecio}</strong></div>
-                        <span class="fechas-repuesto">Últ. Movimiento: ${fechaMov}</span>
+                        <span class="fechas-repuesto">Últ. Movimiento: ${fechaMov} | Stock Mínimo: ${minStock}</span>
                     </div>
                     <div style="text-align:right;">
                         <span class="badge-stock">Stock: ${r.cantidad}</span>
@@ -1255,7 +1505,7 @@
     }
 
     function actualizarDropdownRepuestos() {
-        const s = document.getElementById('mantRepuestoSelect'); s.innerHTML = '<option value="">-- Sin repuesto --</option>';
+        const s = document.getElementById('mantRepuestoSelect'); s.innerHTML = '<option value="">-- Seleccionar ítem --</option>';
         let sucActual = equipos[indexActual].ubicacion;
         let eqActualCodigo = equipos[indexActual].codigo;
         
@@ -1270,6 +1520,116 @@
     function toggleMantenimientoRapido() { const val = document.getElementById('mantRepuestoSelect').value; document.getElementById('divNuevoRepMant').style.display = val === 'nuevo' ? 'flex' : 'none'; }
     
     window.onclick = function(e) { if (e.target == document.getElementById('modalDetalles')) cerrarModal(); }
+
+    function imprimirReporteInventario() {
+        let html = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Reporte de Inventario - CAMPO LLANO</title>
+            <style>
+                body { font-family: 'Segoe UI', sans-serif; color: #333; line-height: 1.4; padding: 20px; }
+                h1 { text-align: center; color: #00a650; border-bottom: 3px solid #00a650; padding-bottom: 10px; }
+                h2 { color: #f37021; margin-top: 30px; border-bottom: 2px solid #f37021; padding-bottom: 5px; }
+                h3 { color: #00a650; margin-top: 20px; font-size: 18px; margin-bottom: 10px; }
+                .equipo-header { background: #eef2f7; padding: 8px 12px; font-weight: bold; margin-top: 15px; border-left: 4px solid #1565c0; font-size: 14px; }
+                .meta-info { font-size: 12px; color: #d32f2f; margin-left: 15px; background: #fff; padding: 2px 6px; border-radius: 4px; border: 1px solid #ffcdd2; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; margin-bottom: 20px; }
+                th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                th { background: #00a650; color: white; font-weight: bold; }
+                .stock-celda { font-weight: bold; font-size: 14px; text-align: center; }
+                .fecha-reporte { text-align: right; font-size: 12px; color: #666; margin-bottom: 20px; }
+                @media print {
+                    body { padding: 0; }
+                    .salto-pagina { page-break-before: always; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Reporte General de Inventario</h1>
+            <div class="fecha-reporte">Generado el: ${obtenerFechaHoy()}</div>
+        `;
+
+        const sucursales = [...new Set(equipos.map(e => e.ubicacion))];
+
+        if(sucursales.length === 0) {
+            html += `<p>No hay datos registrados en el sistema.</p>`;
+        }
+
+        sucursales.forEach((sucursal, indexSuc) => {
+            if(indexSuc > 0) html += `<div class="salto-pagina"></div>`; 
+            html += `<h2>🏢 Sucursal: ${sucursal}</h2>`;
+            
+            const equiposSucursal = equipos.filter(e => e.ubicacion === sucursal);
+            const categorias = [...new Set(equiposSucursal.map(e => e.categoria))];
+
+            categorias.forEach(categoria => {
+                html += `<h3>📁 Categoría: ${categoria}</h3>`;
+                
+                const eqCat = equiposSucursal.filter(e => e.categoria === categoria);
+                
+                eqCat.forEach(eq => {
+                    let infoCombustion = '';
+                    if (categoria === 'Equipos de Combustión') {
+                        let unidad = eq.subCategoria === 'Vehículos' ? 'Km' : 'Hrs';
+                        let cap = parseFloat(eq.capacidadTanque) || 0;
+                        let pct = parseFloat(eq.porcentajeDiesel) || 0;
+                        let rest = (cap * pct) / 100;
+                        let pedirComb = cap - rest;
+                        infoCombustion = `<span class="meta-info">Uso actual: ${eq.horas || 0} ${unidad} | Combustible Restante: ${rest.toFixed(1)} L | Sugerido Pedir: ${pedirComb.toFixed(1)} L</span>`;
+                    }
+                    
+                    html += `<div class="equipo-header">Equipo: [${eq.codigo}] - ${eq.nombre} ${infoCombustion}</div>`;
+                    
+                    let repCompatibles = repuestosGlobales.filter(r => 
+                        r.sucursal === sucursal && 
+                        (!r.equiposCompatibles || r.equiposCompatibles.includes('TODOS') || r.equiposCompatibles.includes(eq.codigo))
+                    );
+
+                    if (repCompatibles.length > 0) {
+                        html += `<table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%;">Nombre del Ítem (Tipo y Marca)</th>
+                                    <th style="width: 15%;">Clasificación</th>
+                                    <th style="width: 15%; text-align: center;">Stock Actual</th>
+                                    <th style="width: 15%;">Último Precio</th>
+                                    <th style="width: 15%; text-align: center;">Pedir</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                        repCompatibles.forEach(r => {
+                            let minStock = r.stockMinimo || 0;
+                            let pedirTexto = (r.cantidad <= minStock) ? '<strong style="color:#d32f2f;">Sí</strong>' : '';
+                            html += `<tr>
+                                <td><strong>${r.tipo}</strong> <span style="color:#555;">(${r.marca})</span></td>
+                                <td>${r.clasificacion || 'Repuesto'}</td>
+                                <td class="stock-celda">${r.cantidad}</td>
+                                <td>$${r.precio || 0}</td>
+                                <td style="text-align:center;">${pedirTexto}</td>
+                            </tr>`;
+                        });
+                        html += `</tbody></table>`;
+                    } else {
+                        html += `<p style="font-size:12px; color:#777; margin-left:15px; margin-bottom: 20px;"><em>Sin repuestos/consumibles asociados a este equipo.</em></p>`;
+                    }
+                });
+            });
+        });
+
+        html += `</body></html>`;
+        
+        let ventanaImpresion = window.open('', '_blank');
+        ventanaImpresion.document.write(html);
+        ventanaImpresion.document.close();
+        ventanaImpresion.focus();
+        
+        setTimeout(() => {
+            ventanaImpresion.print();
+            ventanaImpresion.close();
+        }, 350);
+    }
     
     actualizarTabla();
 </script>
