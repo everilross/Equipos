@@ -97,12 +97,199 @@
                     <option value="">-- Seleccionar Categoría --</option>
                     <option value="Equipos de Combustión">Equipos de Combustión (Generador / Vehículos)</option>
                     <option value="Maquinaria Operativa">Maquinaria Operativa (Frío / Frescos)</option>
-                    <option value="Computación / POS">Computación / Redes / POS</option>
-                    <option value="Electrodoméstico">Electrodoméstico</option>
+                    <option value="Tecnología / Sistema">Tecnología / Sistema</option>
+                    <option value="Equipos Eléctricos y Electrónicos">Equipos Eléctricos y Electrónicos</option>
                 </select>
             </div>
 
             <div id="camposRestantes" style="display: none;">
+                
+                <div id="divSubTecnologia" style="display:none; background:#f4f7f6; padding:10px; border-radius:4px; margin-bottom: 15px; border-left: 4px solid #17a2b8;">
+                    <label style="color:#17a2b8;">Tipo de Equipo de Tecnología</label>
+                    <select id="subCategoriaTecnologia" onchange="alCambiarSubCategoriaTecnologia()">
+                        <option value="Computación">💻 Computación</option>
+                        <option value="Red">🌐 Red</option>
+                        <option value="CCTV">📹 CCTV</option>
+                    </select>
+                </div>
+
+                <!-- Sub-menú para Computación y Departamento -->
+                <div id="divSubComputacion" style="display:none; background:#e3f2fd; padding:10px; border-radius:4px; margin-bottom: 15px; border-left: 4px solid #2196f3;">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="color:#0d47a1;">Sub-Tipo (Computación)</label>
+                            <select id="tipoComputacion" onchange="generarCodigoAutomatico(); toggleComputadoraOpciones();">
+                                <option value="Computadora">🖥️ Computadora</option>
+                                <option value="Balanza">⚖️ Balanza</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="color:#0d47a1;">Departamento</label>
+                            <select id="departamentoTec" onchange="gestionarDepartamento()">
+                                <!-- Las opciones se cargarán por JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- MÓDULO DE SISTEMA OPERATIVO (Solo para Computadora) -->
+                    <div id="divOpcionSO" style="display:none; margin-top:15px; padding-top:10px; border-top:1px dashed #90caf9;">
+                        <h5 style="margin:0 0 10px 0; color:#0d47a1;">💻 Especificaciones de Software</h5>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 150px;">
+                                <label>Sistema Operativo</label>
+                                <select id="compSistemaOperativo">
+                                    <option value="Windows">Windows</option>
+                                    <option value="Linux">Linux</option>
+                                    <option value="macOS">macOS</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 150px;">
+                                <label>Versión del SO</label>
+                                <input type="text" id="compVersionSO" placeholder="Ej. 10 Pro, Ubuntu 22.04, Sonoma...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MÓDULO DE IMPRESORAS (Solo para Computadora) -->
+                    <div id="divOpcionImpresora" style="display:none; margin-top:15px; padding-top:10px; border-top:1px dashed #90caf9;">
+                        <label style="color:#0d47a1;">¿Esta computadora lleva impresora vinculada?</label>
+                        <select id="llevaImpresora" onchange="toggleImpresora()">
+                            <option value="no">No</option>
+                            <option value="si">Sí</option>
+                        </select>
+                        
+                        <div id="divLogicaImpresora" style="display:none; background:#fff; padding:15px; border-radius:6px; border:1px solid #bbdefb; margin-top:10px;">
+                            <label style="color:var(--secondary);">Tipo Principal de Impresora</label>
+                            <select id="categoriaImpresora" onchange="toggleCategoriaImpresora()" style="margin-bottom:10px; border-color:var(--secondary);">
+                                <option value="Normal">🖨️ Normal (Tickera / Térmica / Tóner)</option>
+                                <option value="Fiscal">🧾 Fiscal (Facturación)</option>
+                            </select>
+
+                            <!-- Impresora Fiscal -->
+                            <div id="divImpresoraFiscal" style="display:none; background:#fff3cd; padding:10px; border-radius:4px; border:1px solid #ffeeba;">
+                                <h5 style="margin:0 0 10px 0; color:#856404;">Datos de Impresora Fiscal</h5>
+                                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                                    <div style="flex:1; min-width:120px;"><label>Número de Caja</label><input type="text" id="impFiscalNumCaja" placeholder="Ej. Caja 01"></div>
+                                    <div style="flex:1; min-width:120px;"><label>Marca</label><input type="text" id="impFiscalMarca" placeholder="Ej. Bixolon"></div>
+                                    <div style="flex:1; min-width:120px;"><label>Modelo</label><input type="text" id="impFiscalModelo" placeholder="Ej. SRP-350"></div>
+                                    <div style="flex:1; min-width:120px;"><label>Serial Impresora</label><input type="text" id="impFiscalSerial" placeholder="Serial"></div>
+                                </div>
+                                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                    <div style="flex:1; min-width:140px;">
+                                        <label>Dispositivo Fiscal</label>
+                                        <select id="impFiscalDispTipo">
+                                            <option value="Interno">Integrado / Interno</option>
+                                            <option value="Externo">Caja / Externo</option>
+                                        </select>
+                                    </div>
+                                    <div style="flex:2; min-width:150px;"><label>Serial del Dispositivo</label><input type="text" id="impFiscalDispSerial" placeholder="Ej. Z1234567"></div>
+                                </div>
+                            </div>
+
+                            <!-- Impresora Normal -->
+                            <div id="divImpresoraNormal" style="display:block; background:#e8f5e9; padding:10px; border-radius:4px; border:1px solid #c8e6c9;">
+                                <div style="margin-bottom:10px;">
+                                    <label style="color:#2e7d32;">Clasificación de Impresión</label>
+                                    <select id="impNormalTipo" onchange="toggleImpNormalTipo()">
+                                        <option value="Tickera">Tickera / Recibos</option>
+                                        <option value="Térmica">Térmica / Etiquetas</option>
+                                        <option value="Tóner">Tóner / Tinta</option>
+                                    </select>
+                                </div>
+
+                                <div id="divImpNormalTickeraTermica" style="display:block;">
+                                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                        <div style="flex:1; min-width:120px;"><label>Marca</label><input type="text" id="impNormalMarca" placeholder="Ej. Epson"></div>
+                                        <div style="flex:1; min-width:120px;"><label>Modelo</label><input type="text" id="impNormalModelo" placeholder="Ej. TM-T20II"></div>
+                                        <div style="flex:1; min-width:120px;"><label>Serial</label><input type="text" id="impNormalSerial" placeholder="Serial"></div>
+                                    </div>
+                                </div>
+
+                                <div id="divImpNormalToner" style="display:none;">
+                                    <label style="color:#1565c0; font-size:12px;">Gestión de Impresoras de Tóner</label>
+                                    <select id="impTonerOrigen" onchange="toggleImpTonerOrigen()" style="margin-bottom:10px; border-color:#90caf9;">
+                                        <option value="nueva">➕ Registrar Impresora Nueva</option>
+                                        <option value="lista">📋 Seleccionar de Impresoras Existentes</option>
+                                    </select>
+
+                                    <div id="divImpTonerLista" style="display:none; margin-bottom:10px;">
+                                        <select id="impTonerSelect" onchange="autocompletarToner()"></select>
+                                    </div>
+
+                                    <div id="divImpTonerDetalles" style="display:block;">
+                                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                                            <div style="flex:1; min-width:120px;"><label>Marca</label><input type="text" id="impTonerMarca" placeholder="Ej. HP"></div>
+                                            <div style="flex:1; min-width:120px;"><label>Modelo</label><input type="text" id="impTonerModelo" placeholder="Ej. LaserJet Pro"></div>
+                                        </div>
+                                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                            <div style="flex:1; min-width:120px;"><label>Serial</label><input type="text" id="impTonerSerial" placeholder="Serial"></div>
+                                            <div style="flex:1; min-width:120px;">
+                                                <label>Tipo de Color</label>
+                                                <select id="impTonerColor">
+                                                    <option value="Monocromática">⚫ Monocromática (B/N)</option>
+                                                    <option value="A Color">🌈 A Color</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- MÓDULO DE BALANZA -->
+                    <div id="divOpcionBalanza" style="display:none; margin-top:15px; padding-top:10px; border-top:1px dashed #00a650;">
+                        <h5 style="margin:0 0 10px 0; color:#00a650;">⚖️ Especificaciones de la Balanza</h5>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <div style="flex:1; min-width:120px;"><label>Marca</label><input type="text" id="balanzaMarca" placeholder="Ej. CAS, Kretz"></div>
+                            <div style="flex:1; min-width:120px;"><label>Modelo</label><input type="text" id="balanzaModelo" placeholder="Ej. PD-II"></div>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <div style="flex:1; min-width:120px;"><label>Serial de Balanza</label><input type="text" id="balanzaSerial" placeholder="Serial"></div>
+                            <div style="flex:1; min-width:120px;">
+                                <label>Tipo de Balanza</label>
+                                <select id="balanzaTipo">
+                                    <option value="Colgante">Colgante</option>
+                                    <option value="Fija">Fija</option>
+                                    <option value="Romana">Romana</option>
+                                </select>
+                            </div>
+                            <div style="flex:1; min-width:120px;"><label>Capacidad (Kg)</label><input type="number" id="balanzaCapacidad" min="0" step="0.1" placeholder="Ej. 15.5"></div>
+                        </div>
+                        
+                        <div style="background:#f9f9f9; padding:10px; border-radius:4px; border:1px solid #ddd;">
+                            <label style="color:#0d47a1;">¿Esta balanza está vinculada a una Computadora?</label>
+                            <select id="balanzaVinculada" onchange="toggleBalanzaVinculacion()">
+                                <option value="no">No</option>
+                                <option value="si">Sí</option>
+                            </select>
+                            
+                            <div id="divBalanzaVinculacion" style="display:none; margin-top:10px; background:#e3f2fd; padding:10px; border-radius:4px; border:1px solid #90caf9;">
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <div style="flex:1; min-width: 150px;">
+                                        <label>Departamento de la PC</label>
+                                        <select id="balanzaDeptoPC" onchange="actualizarListaComputadorasBalanza()"></select>
+                                    </div>
+                                    <div style="flex:2; min-width: 200px;">
+                                        <label>Seleccionar Computadora (Libre)</label>
+                                        <select id="balanzaComputadoraSelec"></select>
+                                    </div>
+                                </div>
+                                <small style="color:#666; margin-top:5px; display:block;">*Solo se mostrarán las computadoras que pertenezcan a este departamento y que NO tengan una balanza ya asignada (Máx 1 balanza por PC).</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="divSubElectricos" style="display:none; background:#f4f7f6; padding:10px; border-radius:4px; margin-bottom: 15px; border-left: 4px solid #f37021;">
+                    <label style="color:#f37021;">Tipo de Equipo Eléctrico/Electrónico</label>
+                    <select id="subCategoriaElectricos" onchange="generarCodigoAutomatico()">
+                        <option value="Iluminaria">💡 Iluminaria</option>
+                        <option value="Electrodoméstico">🔌 Electrodoméstico</option>
+                        <option value="Bomba de agua">💧 Bomba de agua</option>
+                    </select>
+                </div>
+
                 <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 140px;">
                         <label>Código (Automático)</label>
@@ -137,6 +324,18 @@
                     </div>
                 </div>
                 
+                <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #4caf50;">
+                    <label style="color: #2e7d32;">¿Este equipo cuenta con garantía?</label>
+                    <select id="equipoGarantia" onchange="document.getElementById('divGarantiaEquipo').style.display = this.value === 'si' ? 'flex' : 'none';">
+                        <option value="no">No</option>
+                        <option value="si">Sí</option>
+                    </select>
+                    <div id="divGarantiaEquipo" style="display:none; margin-top: 10px; gap: 10px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 150px;"><label>Fecha de Compra</label><input type="date" id="equipoFechaCompra"></div>
+                        <div style="flex: 1; min-width: 150px;"><label>Tiempo de la Garantía</label><input type="text" id="equipoTiempoGarantia" placeholder="Ej. 1 año, 6 meses..."></div>
+                    </div>
+                </div>
+
                 <div id="camposGenerador" style="display: none; background: #fff8e1; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px dashed #ffc107; flex-direction: column; gap: 10px;">
                     <h4 style="margin: 0; color: #b08a00; width: 100%;">⚙️ Especificaciones de Combustión</h4>
                     
@@ -238,6 +437,8 @@
         <h2 id="modalTitulo" style="margin-bottom: 5px; color: var(--primary);">Detalles</h2>
         <p style="margin-top: 0; font-size: 14px; color: #666; margin-bottom: 10px;">
             <span id="modalCategoria"></span> | Sucursal: <strong id="modalUbicacion"></strong> | Serial: <strong id="modalSerial" style="color: #444;"></strong>
+            <br><span id="modalGarantiaInfo" style="font-size: 13px; color: #2e7d32; font-weight:bold;"></span>
+            <br><span id="modalDeptoInfo" style="font-size: 13px; color: #1565c0; font-weight:bold; display:none;"></span>
         </p>
 
         <div style="background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
@@ -249,6 +450,53 @@
                 <option value="Dañado">Dañado</option>
             </select>
             <button class="btn-info" onclick="actualizarEstadoManual()">Guardar Cambio</button>
+        </div>
+
+        <div id="divReemplazarBalanza" style="display: none; background: #f3e5f5; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #ce93d8;">
+            <h4 style="margin-top:0; color: #6a1b9a; margin-bottom: 10px;">🔄 Registrar Sustitución de Balanza</h4>
+            <input type="hidden" id="sustitucionBalanzaEstado">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                <div style="flex: 1;"><label>Nueva Marca</label><input type="text" id="nuevaBalMarca" required></div>
+                <div style="flex: 1;"><label>Nuevo Modelo</label><input type="text" id="nuevaBalModelo" required></div>
+                <div style="flex: 1;"><label>Nuevo Serial</label><input type="text" id="nuevaBalSerial" required></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                <div style="flex: 1;">
+                    <label>Nuevo Tipo</label>
+                    <select id="nuevaBalTipo">
+                        <option value="Colgante">Colgante</option>
+                        <option value="Fija">Fija</option>
+                        <option value="Romana">Romana</option>
+                    </select>
+                </div>
+                <div style="flex: 1;"><label>Nueva Capacidad (Kg)</label><input type="number" id="nuevaBalCapacidad" step="0.1" required></div>
+                <div style="flex: 1;"><label>Fecha de Sustitución</label><input type="date" id="nuevaBalFecha" required></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                <div style="flex: 1;"><label>Motivo del Daño / Falla (Descripción)</label><input type="text" id="motivoSustitucionBal" placeholder="Ej. Tarjeta quemada, error de peso..." required></div>
+            </div>
+            <div>
+                <button type="button" class="btn-success" style="background:#9c27b0;" onclick="guardarReemplazoBalanza()">Confirmar Sustitución</button>
+                <button type="button" class="btn-danger" onclick="cancelarSustitucionBalanza()">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Seccion Computadora Adicional -->
+        <div id="infoComputadoraSO" style="display: none; font-size: 13px; color: #424242; background: #e3f2fd; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #2196f3; line-height: 1.6;">
+            <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #2196f3; padding-bottom: 2px;">💻 Sistema Operativo:</div>
+            <div id="modalCompSODetalles" style="color:#333; font-weight:normal;"></div>
+        </div>
+
+        <!-- Seccion Impresora -->
+        <div id="infoImpresora" style="display: none; font-size: 13px; color: #424242; background: #f5f5f5; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #607d8b; line-height: 1.6;">
+            <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #607d8b; padding-bottom: 2px;">🖨️ Especificaciones de Impresora:</div>
+            <div id="modalImpresoraDetalles" style="color:#333; font-weight:normal;"></div>
+        </div>
+
+        <!-- Seccion Balanza -->
+        <div id="infoBalanza" style="display: none; font-size: 13px; color: #424242; background: #f3e5f5; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #9c27b0; line-height: 1.6;">
+            <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #9c27b0; padding-bottom: 2px;">⚖️ Especificaciones de Balanza:</div>
+            <div id="modalBalanzaDetalles" style="color:#333; font-weight:normal;"></div>
         </div>
         
         <div id="infoGasRefrigerante" style="display: none; font-size: 13px; color: #0d47a1; background: #e3f2fd; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #2196f3; line-height: 1.6;">
@@ -359,10 +607,13 @@
                     </div>
                     <div style="flex: 1.5; min-width: 150px;"><label>Tipo/Descripción</label><input type="text" id="nuevoCatTipo" placeholder="Ej. Filtro de Aire, Aceite..." required></div>
                     <div style="flex: 1.5; min-width: 150px;"><label>Marca / Modelo</label><input type="text" id="nuevoCatDesc" placeholder="Ej. Fleetguard, PDV..." required></div>
-                    <div style="flex: 1; min-width: 140px;">
+                    <div style="flex: 1; min-width: 120px;">
                         <label>Stock Mín. (Alerta)</label>
                         <input type="number" id="nuevoCatMinimo" placeholder="Ej. 2" required min="0">
                     </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; margin-top: 5px;">
                     <div style="flex: 1; min-width: 140px;">
                         <label>¿Es compartido?</label>
                         <select id="nuevoCatCompartido" onchange="toggleEquiposCompatibles()">
@@ -370,9 +621,22 @@
                             <option value="si">Sí, con otros</option>
                         </select>
                     </div>
+                    
+                    <div style="flex: 1; min-width: 140px;">
+                        <label>¿Tiene garantía?</label>
+                        <select id="nuevoCatGarantia" onchange="document.getElementById('divGarantiaRepuesto').style.display = this.value === 'si' ? 'flex' : 'none';">
+                            <option value="no">No</option>
+                            <option value="si">Sí</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="divGarantiaRepuesto" style="display:none; width: 100%; gap: 10px; flex-wrap: wrap; background: #e8f5e9; padding: 10px; border-radius: 4px; margin-top: 5px; border: 1px dashed #4caf50; box-sizing:border-box;">
+                    <div style="flex: 1; min-width: 140px;"><label>Fecha de Compra</label><input type="date" id="nuevoCatFechaCompra"></div>
+                    <div style="flex: 1; min-width: 140px;"><label>Tiempo de Garantía</label><input type="text" id="nuevoCatTiempoGarantia" placeholder="Ej. 3 meses, 1 año"></div>
                 </div>
                 
-                <div id="divEquiposCompatibles" style="display:none; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <div id="divEquiposCompatibles" style="display:none; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 5px;">
                     <label style="color:var(--primary); margin-bottom: 5px; display:block;">Seleccione con cuáles equipos se comparte:</label>
                     <div style="margin-bottom: 5px; font-size: 13px;">
                         <input type="checkbox" id="chkTodosEquipos" onchange="toggleTodosEquiposCompatibles()"> 
@@ -406,7 +670,7 @@
                 <h4 style="margin-top:0; color: #856404;">⚖️ Ajuste y Edición de Ítem: <span id="lblRepuestoAjuste"></span></h4>
                 <input type="hidden" id="idRepuestoAjuste">
                 <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width:120px;"><label>Cantidad (+ / -) <small>(Dejar vacío si no cambia)</small></label><input type="number" id="ajusteCant" placeholder="Ej. -2 o 5" title="Use números negativos para restar stock"></div>
+                    <div style="flex: 1; min-width:120px;"><label>Cantidad (+ / -) <small>(Vacío si no cambia)</small></label><input type="number" id="ajusteCant" placeholder="Ej. -2 o 5" title="Use números negativos para restar stock"></div>
                     <div style="flex: 1; min-width:100px;"><label>Stock Mín.</label><input type="number" id="ajusteMinimo" min="0" required></div>
                     <div style="flex: 1; min-width:120px;"><label>Fecha</label><input type="date" id="ajusteFecha" required></div>
                 </div>
@@ -465,6 +729,19 @@
             </div>
 
             <form id="formMantenimiento" style="display:none; background:#fff; padding:15px; border-radius:6px; border:1px solid #ccc;">
+                
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 4px; border: 1px dashed #4caf50; margin-bottom: 15px;">
+                    <label style="color: #2e7d32;">¿Este mantenimiento lleva garantía?</label>
+                    <select id="mantGarantia" onchange="document.getElementById('divGarantiaMant').style.display = this.value === 'si' ? 'block' : 'none';">
+                        <option value="no">No</option>
+                        <option value="si">Sí</option>
+                    </select>
+                    <div id="divGarantiaMant" style="display:none; margin-top: 10px;">
+                        <label>Tiempo de la Garantía</label>
+                        <input type="text" id="mantTiempoGarantia" placeholder="Ej. 30 días, 3 meses, 1 año...">
+                    </div>
+                </div>
+
                 <div style="background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px;">
                     <label style="color: #0d47a1; margin-bottom: 8px;">📦 Repuestos/Consumibles a utilizar en este trabajo</label>
                     <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
@@ -480,8 +757,28 @@
                     <ul id="listaMantenimientoRepuestos" style="list-style: none; padding: 0; margin: 10px 0 0 0; font-size: 13px;">
                         </ul>
                 </div>
+
+                <div id="divMantActualizarSO" style="display:none; background: #e3f2fd; padding: 10px; border-radius: 4px; border: 1px dashed #2196f3; margin-bottom: 15px;">
+                    <label style="color: #0d47a1;">¿Desea actualizar los datos del Sistema Operativo?</label>
+                    <select id="mantOpcionSO" onchange="document.getElementById('divMantSOInputs').style.display = this.value === 'si' ? 'flex' : 'none';">
+                        <option value="no">No</option>
+                        <option value="si">Sí, actualizar</option>
+                    </select>
+                    <div id="divMantSOInputs" style="display:none; margin-top: 10px; gap: 10px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 120px;">
+                            <label>Nuevo Sistema</label>
+                            <select id="mantNuevoSO">
+                                <option value="Windows">Windows</option>
+                                <option value="Linux">Linux</option>
+                                <option value="macOS">macOS</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1; min-width: 120px;"><label>Nueva Versión</label><input type="text" id="mantNuevaVersionSO" placeholder="Ej. Windows 11 Pro"></div>
+                        <div style="flex: 2; min-width: 200px;"><label>Descripción / Razón de SO</label><input type="text" id="mantDescSO" placeholder="Ej. Formateo por lentitud"></div>
+                    </div>
+                </div>
                 
-                <div class="form-group"><label>Trabajo realizado (Detalles)</label><input type="text" id="mantTrabajo" required></div>
+                <div class="form-group"><label>Trabajo realizado (Detalles de Mantenimiento)</label><input type="text" id="mantTrabajo" required></div>
                 <div id="divMantHorasLectura" style="display: none; margin-bottom: 15px;"><label id="lblLecturaMant">Lectura del Horómetro al realizar este trabajo</label><input type="number" id="mantHorometroActual"></div>
                 
                 <div style="background: #eef2f7; padding: 12px; border-radius: 4px; border: 1px solid #d0d7de; margin-bottom: 15px;">
@@ -573,12 +870,195 @@
     let indexActual = null;
     let repuestosMantenimientoTemp = [];
 
+    // Gestión dinámica de departamentos
+    let departamentos = JSON.parse(localStorage.getItem('departamentosV30')) || ['Administración', 'Ventas', 'Almacén'];
+    // Gestión dinámica de impresoras Tóner (catálogo)
+    let impresorasToner = JSON.parse(localStorage.getItem('impresorasTonerV30')) || [];
+
+    function renderizarDepartamentos() {
+        const sel = document.getElementById('departamentoTec');
+        if(!sel) return;
+        sel.innerHTML = '<option value="">-- Seleccionar Departamento --</option>';
+        departamentos.forEach(d => {
+            sel.innerHTML += `<option value="${d}">${d}</option>`;
+        });
+        sel.innerHTML += '<option value="nuevo">➕ Crear Nuevo Departamento...</option>';
+    }
+
+    function gestionarDepartamento() {
+        const sel = document.getElementById('departamentoTec');
+        if(sel.value === 'nuevo') {
+            let nuevo = prompt("Ingrese el nombre del nuevo departamento:");
+            if(nuevo && nuevo.trim() !== "") {
+                departamentos.push(nuevo.trim());
+                localStorage.setItem('departamentosV30', JSON.stringify(departamentos));
+                renderizarDepartamentos();
+                sel.value = nuevo.trim();
+            } else {
+                sel.value = ""; // Resetea si cancela
+            }
+        }
+    }
+
+    function renderizarListaToner() {
+        const select = document.getElementById('impTonerSelect');
+        if(!select) return;
+        select.innerHTML = '<option value="">-- Seleccionar Impresora Tóner --</option>';
+        impresorasToner.forEach((imp, idx) => {
+            select.innerHTML += `<option value="${idx}">${imp.marca} - ${imp.modelo} (SN: ${imp.serial})</option>`;
+        });
+    }
+
+    function cargarDeptosBalanza() {
+        const sel = document.getElementById('balanzaDeptoPC');
+        if(!sel) return;
+        sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+        departamentos.forEach(d => {
+            sel.innerHTML += `<option value="${d}">${d}</option>`;
+        });
+        actualizarListaComputadorasBalanza();
+    }
+
+    // Inicializar listas al cargar la página
+    renderizarDepartamentos();
+    renderizarListaToner();
+
+    function autocompletarToner() {
+        const val = document.getElementById('impTonerSelect').value;
+        if(val !== "") {
+            let imp = impresorasToner[val];
+            document.getElementById('impTonerMarca').value = imp.marca;
+            document.getElementById('impTonerModelo').value = imp.modelo;
+            document.getElementById('impTonerSerial').value = imp.serial;
+            document.getElementById('impTonerColor').value = imp.color;
+            // Bloquear campos
+            document.getElementById('impTonerMarca').readOnly = true;
+            document.getElementById('impTonerModelo').readOnly = true;
+            document.getElementById('impTonerSerial').readOnly = true;
+            document.getElementById('impTonerColor').disabled = true;
+        } else {
+            document.getElementById('impTonerMarca').value = '';
+            document.getElementById('impTonerModelo').value = '';
+            document.getElementById('impTonerSerial').value = '';
+            // Desbloquear campos
+            document.getElementById('impTonerMarca').readOnly = false;
+            document.getElementById('impTonerModelo').readOnly = false;
+            document.getElementById('impTonerSerial').readOnly = false;
+            document.getElementById('impTonerColor').disabled = false;
+        }
+    }
+
+    function toggleComputadoraOpciones() {
+        const tipoComp = document.getElementById('tipoComputacion').value;
+        const divOpcionImpresora = document.getElementById('divOpcionImpresora');
+        const divOpcionBalanza = document.getElementById('divOpcionBalanza');
+        const divOpcionSO = document.getElementById('divOpcionSO');
+        
+        if (tipoComp === 'Computadora') {
+            divOpcionImpresora.style.display = 'block';
+            divOpcionSO.style.display = 'block';
+            divOpcionBalanza.style.display = 'none';
+        } else if (tipoComp === 'Balanza') {
+            divOpcionImpresora.style.display = 'none';
+            divOpcionSO.style.display = 'none';
+            divOpcionBalanza.style.display = 'block';
+            document.getElementById('llevaImpresora').value = 'no';
+            toggleImpresora();
+            cargarDeptosBalanza();
+        } else {
+            divOpcionImpresora.style.display = 'none';
+            divOpcionSO.style.display = 'none';
+            divOpcionBalanza.style.display = 'none';
+            document.getElementById('llevaImpresora').value = 'no';
+            toggleImpresora();
+        }
+    }
+
+    function toggleImpresora() {
+        const lleva = document.getElementById('llevaImpresora').value;
+        document.getElementById('divLogicaImpresora').style.display = lleva === 'si' ? 'block' : 'none';
+    }
+
+    function toggleCategoriaImpresora() {
+        const cat = document.getElementById('categoriaImpresora').value;
+        document.getElementById('divImpresoraFiscal').style.display = cat === 'Fiscal' ? 'block' : 'none';
+        document.getElementById('divImpresoraNormal').style.display = cat === 'Normal' ? 'block' : 'none';
+    }
+
+    function toggleImpNormalTipo() {
+        const tipo = document.getElementById('impNormalTipo').value;
+        document.getElementById('divImpNormalTickeraTermica').style.display = (tipo === 'Tickera' || tipo === 'Térmica') ? 'block' : 'none';
+        document.getElementById('divImpNormalToner').style.display = tipo === 'Tóner' ? 'block' : 'none';
+    }
+
+    function toggleImpTonerOrigen() {
+        const origen = document.getElementById('impTonerOrigen').value;
+        if (origen === 'lista') {
+            document.getElementById('divImpTonerLista').style.display = 'block';
+            autocompletarToner();
+        } else {
+            document.getElementById('divImpTonerLista').style.display = 'none';
+            document.getElementById('impTonerSelect').value = '';
+            autocompletarToner(); 
+        }
+    }
+
+    function toggleBalanzaVinculacion() {
+        const vinc = document.getElementById('balanzaVinculada').value;
+        document.getElementById('divBalanzaVinculacion').style.display = vinc === 'si' ? 'block' : 'none';
+        if (vinc === 'si') {
+            cargarDeptosBalanza();
+        }
+    }
+
+    function actualizarListaComputadorasBalanza() {
+        const depto = document.getElementById('balanzaDeptoPC').value;
+        const selComp = document.getElementById('balanzaComputadoraSelec');
+        selComp.innerHTML = '<option value="">-- Seleccionar Computadora --</option>';
+        
+        if (!depto) return;
+        
+        let compsDisponibles = equipos.filter(e => 
+            e.categoria === 'Tecnología / Sistema' && 
+            e.subCategoria === 'Computación' && 
+            e.tipoComputacion === 'Computadora' && 
+            e.departamento === depto &&
+            !e.balanzaAsignada 
+        );
+
+        if (compsDisponibles.length === 0) {
+            selComp.innerHTML = '<option value="">No hay computadoras libres en este departamento</option>';
+        } else {
+            compsDisponibles.forEach(c => {
+                selComp.innerHTML += `<option value="${c.codigo}">${c.codigo} - ${c.nombre}</option>`;
+            });
+        }
+    }
+
+    function alCambiarSubCategoriaTecnologia() {
+        const subCat = document.getElementById('subCategoriaTecnologia').value;
+        const divComp = document.getElementById('divSubComputacion');
+        if(subCat === 'Computación') {
+            divComp.style.display = 'block';
+            document.getElementById('departamentoTec').setAttribute('required', 'true');
+            toggleComputadoraOpciones();
+        } else {
+            divComp.style.display = 'none';
+            document.getElementById('departamentoTec').removeAttribute('required');
+            document.getElementById('llevaImpresora').value = 'no';
+            toggleImpresora();
+        }
+        generarCodigoAutomatico();
+    }
+
     const obtenerFechaHoy = () => new Date().toISOString().split('T')[0];
 
     function exportarDatos() {
         const data = {
             equipos: equipos,
             repuestos: repuestosGlobales,
+            departamentos: departamentos,
+            impresorasToner: impresorasToner,
             fechaRespaldo: obtenerFechaHoy()
         };
         const jsonStr = JSON.stringify(data, null, 2);
@@ -605,9 +1085,17 @@
                     if(confirm("⚠️ ATENCIÓN: Esto sobrescribirá todos los datos actuales con los del archivo de respaldo seleccionado. ¿Está completamente seguro de continuar?")) {
                         equipos = data.equipos;
                         repuestosGlobales = data.repuestos;
+                        if(data.departamentos) departamentos = data.departamentos;
+                        if(data.impresorasToner) impresorasToner = data.impresorasToner;
+                        
                         localStorage.setItem('listaEquiposV30', JSON.stringify(equipos));
                         localStorage.setItem('repuestosV30', JSON.stringify(repuestosGlobales));
+                        localStorage.setItem('departamentosV30', JSON.stringify(departamentos));
+                        localStorage.setItem('impresorasTonerV30', JSON.stringify(impresorasToner));
+                        
                         actualizarTabla();
+                        renderizarDepartamentos();
+                        renderizarListaToner();
                         alert("✅ Base de datos restaurada exitosamente.");
                     }
                 } else {
@@ -625,13 +1113,29 @@
         const cat = document.getElementById('categoria').value;
         if(!cat) { document.getElementById('codigo').value = ''; return; }
         let subCat = '';
-        if(cat === 'Equipos de Combustión') subCat = document.getElementById('subCategoriaCombustion').value;
-        if(cat === 'Maquinaria Operativa') subCat = document.getElementById('subCategoriaMaquinaria').value;
         let prefijo = 'EQP';
-        if(cat === 'Equipos de Combustión') prefijo = subCat === 'Vehículos' ? 'VEH' : 'GEN';
-        else if(cat === 'Maquinaria Operativa') prefijo = subCat === 'Equipo de Refrigeración' ? 'REF' : 'MAQ';
-        else if(cat === 'Computación / POS') prefijo = 'COM';
-        else if(cat === 'Electrodoméstico') prefijo = 'ELE';
+
+        if(cat === 'Equipos de Combustión') {
+            subCat = document.getElementById('subCategoriaCombustion').value;
+            prefijo = subCat === 'Vehículos' ? 'VEH' : 'GEN';
+        }
+        else if(cat === 'Maquinaria Operativa') {
+            subCat = document.getElementById('subCategoriaMaquinaria').value;
+            prefijo = subCat === 'Equipo de Refrigeración' ? 'REF' : 'MAQ';
+        }
+        else if(cat === 'Tecnología / Sistema') {
+            subCat = document.getElementById('subCategoriaTecnologia').value;
+            let tipoComp = document.getElementById('tipoComputacion').value;
+            if (subCat === 'Computación') {
+                prefijo = tipoComp === 'Balanza' ? 'BAL' : 'COM';
+            } else {
+                prefijo = subCat === 'CCTV' ? 'CAM' : (subCat === 'Red' ? 'RED' : 'TEC');
+            }
+        }
+        else if(cat === 'Equipos Eléctricos y Electrónicos') {
+            subCat = document.getElementById('subCategoriaElectricos').value;
+            prefijo = subCat === 'Bomba de agua' ? 'BOM' : (subCat === 'Iluminaria' ? 'ILU' : 'ELE');
+        }
 
         let maxNum = 0;
         equipos.forEach(eq => {
@@ -648,9 +1152,25 @@
         const divRestantes = document.getElementById('camposRestantes');
         const divGenerador = document.getElementById('camposGenerador');
         const divMaquinaria = document.getElementById('camposMaquinaria');
+        const divTec = document.getElementById('divSubTecnologia');
+        const divElec = document.getElementById('divSubElectricos');
         
-        if(cat === "") { divRestantes.style.display = 'none'; } else {
+        if(cat === "") { 
+            divRestantes.style.display = 'none'; 
+        } else {
             divRestantes.style.display = 'block';
+            
+            if (cat === 'Tecnología / Sistema') {
+                divTec.style.display = 'block';
+                alCambiarSubCategoriaTecnologia(); 
+            } else {
+                divTec.style.display = 'none';
+                document.getElementById('divSubComputacion').style.display = 'none';
+                document.getElementById('departamentoTec').removeAttribute('required');
+            }
+
+            divElec.style.display = (cat === 'Equipos Eléctricos y Electrónicos') ? 'block' : 'none';
+
             if(cat === 'Equipos de Combustión') {
                 divGenerador.style.display = 'flex';
                 document.getElementById('horasUso').setAttribute('required', 'true');
@@ -772,7 +1292,26 @@
                 else if(eq.estado === 'Mantenimiento') claseEstado = 'status-maintenance'; else if(eq.estado === 'Dañado') claseEstado = 'status-danado';
 
                 let descCorta = eq.nombre;
-                if((eq.categoria === 'Maquinaria Operativa' || eq.categoria === 'Equipos de Combustión') && eq.subCategoria) descCorta += `<br><small style="color:#666;">${eq.subCategoria}</small>`;
+                if(eq.subCategoria) {
+                    let subInfo = eq.subCategoria;
+                    if (eq.subCategoria === 'Computación' && eq.tipoComputacion) {
+                        subInfo += ` (${eq.tipoComputacion})`;
+                        if(eq.impresora) {
+                            let prnType = eq.impresora.categoria === 'Fiscal' ? 'Fiscal' : eq.impresora.tipo;
+                            subInfo += ` <span style="font-size:11px;">🖨️ [+Imp. ${prnType}]</span>`;
+                        }
+                        if(eq.balanzaAsignada) {
+                            subInfo += ` <span style="font-size:11px;">⚖️ [+Balanza]</span>`;
+                        }
+                        if(eq.tipoComputacion === 'Balanza' && eq.balanza && eq.balanza.vinculada === 'si') {
+                            subInfo += ` <span style="font-size:11px;">💻 [Vinc: ${eq.balanza.computadoraCodigo}]</span>`;
+                        }
+                    }
+                    descCorta += `<br><small style="color:#666;">${subInfo}</small>`;
+                    if (eq.departamento) {
+                        descCorta += `<br><span style="background:#eef; color:#1565c0; font-size:11px; padding:2px 4px; border-radius:3px; display:inline-block; margin-top:2px;">Dep: ${eq.departamento}</span>`;
+                    }
+                }
 
                 let tdExtras = ''; let estiloFila = ''; let btnUsoRapido = '';
 
@@ -828,10 +1367,95 @@
         const serialFormulario = document.getElementById('serialEquipo').value.trim();
         
         const isMaquinaria = cat === 'Maquinaria Operativa'; const isCombustion = cat === 'Equipos de Combustión';
+        const isTec = cat === 'Tecnología / Sistema'; const isElec = cat === 'Equipos Eléctricos y Electrónicos';
         let subCat = '';
-        if(isMaquinaria) subCat = document.getElementById('subCategoriaMaquinaria').value; if(isCombustion) subCat = document.getElementById('subCategoriaCombustion').value;
+        if(isMaquinaria) subCat = document.getElementById('subCategoriaMaquinaria').value; 
+        if(isCombustion) subCat = document.getElementById('subCategoriaCombustion').value;
+        if(isTec) subCat = document.getElementById('subCategoriaTecnologia').value;
+        if(isElec) subCat = document.getElementById('subCategoriaElectricos').value;
+
         const isFrio = isMaquinaria && subCat === 'Equipo de Refrigeración'; const isFrescos = isMaquinaria && subCat === 'Maquinaria de Productos Frescos';
         
+        let tipoComp = '';
+        let depto = '';
+        let impresoraObj = null;
+        let balanzaObj = null;
+        let soObj = null;
+
+        if(isTec && subCat === 'Computación') {
+            tipoComp = document.getElementById('tipoComputacion').value;
+            depto = document.getElementById('departamentoTec').value;
+            
+            if(tipoComp === 'Computadora') {
+                
+                soObj = {
+                    sistema: document.getElementById('compSistemaOperativo').value,
+                    version: document.getElementById('compVersionSO').value.trim()
+                };
+
+                const llevaImp = document.getElementById('llevaImpresora').value;
+                if(llevaImp === 'si') {
+                    const catImp = document.getElementById('categoriaImpresora').value;
+                    if(catImp === 'Fiscal') {
+                        impresoraObj = {
+                            categoria: 'Fiscal',
+                            numCaja: document.getElementById('impFiscalNumCaja').value.trim(),
+                            marca: document.getElementById('impFiscalMarca').value.trim(),
+                            modelo: document.getElementById('impFiscalModelo').value.trim(),
+                            serial: document.getElementById('impFiscalSerial').value.trim(),
+                            dispositivoTipo: document.getElementById('impFiscalDispTipo').value,
+                            dispositivoSerial: document.getElementById('impFiscalDispSerial').value.trim()
+                        };
+                    } else {
+                        const tipoNor = document.getElementById('impNormalTipo').value;
+                        if(tipoNor === 'Tickera' || tipoNor === 'Térmica') {
+                            impresoraObj = {
+                                categoria: 'Normal',
+                                tipo: tipoNor,
+                                marca: document.getElementById('impNormalMarca').value.trim(),
+                                modelo: document.getElementById('impNormalModelo').value.trim(),
+                                serial: document.getElementById('impNormalSerial').value.trim()
+                            };
+                        } else if(tipoNor === 'Tóner') {
+                            const origenToner = document.getElementById('impTonerOrigen').value;
+                            let marcaT = document.getElementById('impTonerMarca').value.trim();
+                            let modeloT = document.getElementById('impTonerModelo').value.trim();
+                            let serialT = document.getElementById('impTonerSerial').value.trim();
+                            let colorT = document.getElementById('impTonerColor').value;
+                            
+                            impresoraObj = {
+                                categoria: 'Normal',
+                                tipo: 'Tóner',
+                                marca: marcaT,
+                                modelo: modeloT,
+                                serial: serialT,
+                                color: colorT
+                            };
+                            
+                            if(origenToner === 'nueva' && marcaT && modeloT) {
+                                impresorasToner.push({ marca: marcaT, modelo: modeloT, serial: serialT, color: colorT });
+                                localStorage.setItem('impresorasTonerV30', JSON.stringify(impresorasToner));
+                                renderizarListaToner();
+                            }
+                        }
+                    }
+                }
+            } else if (tipoComp === 'Balanza') {
+                balanzaObj = {
+                     marca: document.getElementById('balanzaMarca').value.trim(),
+                     modelo: document.getElementById('balanzaModelo').value.trim(),
+                     serial: document.getElementById('balanzaSerial').value.trim(),
+                     tipo: document.getElementById('balanzaTipo').value,
+                     capacidad: document.getElementById('balanzaCapacidad').value,
+                     vinculada: document.getElementById('balanzaVinculada').value,
+                     computadoraCodigo: ''
+                };
+                if (balanzaObj.vinculada === 'si') {
+                     balanzaObj.computadoraCodigo = document.getElementById('balanzaComputadoraSelec').value;
+                }
+            }
+        }
+
         let primerMant = ''; let tipoProx = 'no';
         if (isCombustion) { primerMant = parseInt(document.getElementById('primerMantenimiento').value); if (!isNaN(primerMant)) tipoProx = 'horas'; else primerMant = ''; }
 
@@ -842,9 +1466,22 @@
                 fase: document.getElementById('atsFase').value, frecuencia: document.getElementById('atsFrecuencia').value.trim(), fechaInstalacion: document.getElementById('atsFechaInst').value, fechaMantenimiento: document.getElementById('atsFechaMant').value, detalleMantenimiento: document.getElementById('atsDetalleMant').value.trim()
             };
         }
+
+        let objGarantia = { tiene: 'no', fechaCompra: '', tiempo: '' };
+        if (document.getElementById('equipoGarantia').value === 'si') {
+            objGarantia.tiene = 'si';
+            objGarantia.fechaCompra = document.getElementById('equipoFechaCompra').value;
+            objGarantia.tiempo = document.getElementById('equipoTiempoGarantia').value.trim();
+        }
         
         let nuevoEq = {
             codigo: codigoFinal, serialEquipo: serialFormulario, nombre: document.getElementById('nombre').value, categoria: cat, subCategoria: subCat, ubicacion: document.getElementById('ubicacion').value, estado: estadoInicial, 
+            tipoComputacion: tipoComp,
+            departamento: depto,
+            so: soObj,
+            impresora: impresoraObj,
+            balanza: balanzaObj,
+            garantia: objGarantia,
             horas: isCombustion ? parseInt(document.getElementById('horasUso').value) : '', capacidadTanque: isCombustion ? parseFloat(document.getElementById('capacidadTanque').value) : '',
             porcentajeDiesel: isCombustion ? parseFloat(document.getElementById('nivelDiesel').value) : '', consumoHora: isCombustion ? parseFloat(document.getElementById('consumoHora').value) : '',
             ultimaRecarga: 'N/A', ultimaSalida: 'N/A', ultimoAjuste: 'N/A', ats: objAts,
@@ -853,23 +1490,102 @@
             tipoProximo: tipoProx, proximoValor: primerMant, mantenimientos: [], historialDiesel: [], historialEstados: [{ fecha: obtenerFechaHoy(), estado: estadoInicial, motivo: 'Registro Inicial' }]
         };
         
-        equipos.push(nuevoEq); actualizarTabla(); this.reset(); alCambiarCategoria();
+        equipos.push(nuevoEq); 
+        
+        // Regla de Balanzas: Si la balanza se vinculó, actualizamos el registro de la PC
+        if (balanzaObj && balanzaObj.vinculada === 'si' && balanzaObj.computadoraCodigo) {
+             let compIdx = equipos.findIndex(e => e.codigo === balanzaObj.computadoraCodigo);
+             if (compIdx !== -1) {
+                  equipos[compIdx].balanzaAsignada = codigoFinal;
+                  let strMarcaMod = balanzaObj.marca ? `${balanzaObj.marca} ${balanzaObj.modelo}` : '';
+                  equipos[compIdx].balanzaDetalle = `${strMarcaMod} - ${balanzaObj.tipo} | Cap: ${balanzaObj.capacidad}Kg (SN: ${balanzaObj.serial})`;
+             }
+        }
+
+        actualizarTabla(); this.reset(); alCambiarCategoria();
     });
 
-    function eliminarEquipo(idx) { if(confirm("¿Eliminar equipo?")) { equipos.splice(idx, 1); actualizarTabla(); } }
+    function eliminarEquipo(idx) { 
+        if(confirm("¿Eliminar equipo?")) { 
+            // Si elimino una balanza vinculada, liberar a la PC
+            let eq = equipos[idx];
+            if (eq.tipoComputacion === 'Balanza' && eq.balanza && eq.balanza.vinculada === 'si') {
+                let compIdx = equipos.findIndex(e => e.codigo === eq.balanza.computadoraCodigo);
+                if(compIdx !== -1) {
+                    delete equipos[compIdx].balanzaAsignada;
+                    delete equipos[compIdx].balanzaDetalle;
+                }
+            }
+            // Si elimino una PC que tenía balanza, avisar (opcional)
+            equipos.splice(idx, 1); 
+            actualizarTabla(); 
+        } 
+    }
 
     function abrirModal(idx) {
         indexActual = idx;
         const eq = equipos[idx];
         document.getElementById('modalTitulo').innerText = eq.codigo + ' - ' + eq.nombre;
         
-        let labelCat = eq.categoria; if((eq.categoria === 'Maquinaria Operativa' || eq.categoria === 'Equipos de Combustión') && eq.subCategoria) labelCat += ` (${eq.subCategoria})`;
+        let labelCat = eq.categoria; if(eq.subCategoria) labelCat += ` (${eq.subCategoria})`;
         document.getElementById('modalCategoria').innerText = labelCat;
         document.getElementById('modalUbicacion').innerText = eq.ubicacion;
         document.getElementById('lblUbicacionRepuestos').innerText = eq.ubicacion;
         document.getElementById('modalSerial').innerText = eq.serialEquipo || 'N/A';
         document.getElementById('modalCambioEstado').value = eq.estado;
         
+        let labelGar = "";
+        if (eq.garantia && eq.garantia.tiene === 'si') {
+            labelGar = `🛡️ En Garantía | Adquirido: ${eq.garantia.fechaCompra || 'N/A'} | Cobertura: ${eq.garantia.tiempo || 'N/A'}`;
+        }
+        document.getElementById('modalGarantiaInfo').innerText = labelGar;
+
+        const lblDepto = document.getElementById('modalDeptoInfo');
+        if(eq.categoria === 'Tecnología / Sistema' && eq.subCategoria === 'Computación' && eq.departamento) {
+            lblDepto.innerText = `🏢 Departamento: ${eq.departamento} | Tipo: ${eq.tipoComputacion}`;
+            lblDepto.style.display = 'block';
+        } else {
+            lblDepto.style.display = 'none';
+        }
+
+        const divSO = document.getElementById('infoComputadoraSO');
+        const detSO = document.getElementById('modalCompSODetalles');
+        divSO.style.display = 'none';
+
+        if(eq.tipoComputacion === 'Computadora' && eq.so) {
+            divSO.style.display = 'block';
+            detSO.innerHTML = `<strong>Plataforma:</strong> ${eq.so.sistema || '--'}<br><strong>Versión:</strong> ${eq.so.version || '--'}`;
+        }
+
+        const divImp = document.getElementById('infoImpresora');
+        const detImp = document.getElementById('modalImpresoraDetalles');
+        if(eq.impresora) {
+            divImp.style.display = 'block';
+            if(eq.impresora.categoria === 'Fiscal') {
+                detImp.innerHTML = `<strong>Tipo:</strong> Fiscal<br><strong>Número de Caja:</strong> ${eq.impresora.numCaja || '--'}<br><strong>Marca / Modelo:</strong> ${eq.impresora.marca || '--'} ${eq.impresora.modelo || '--'}<br><strong>Serial Impresora:</strong> ${eq.impresora.serial || '--'}<br><strong>Dispositivo ${eq.impresora.dispositivoTipo}:</strong> Serial ${eq.impresora.dispositivoSerial || '--'}`;
+            } else {
+                let colorStr = eq.impresora.tipo === 'Tóner' ? `<br><strong>Tipo de Impresión:</strong> ${eq.impresora.color || '--'}` : '';
+                detImp.innerHTML = `<strong>Tipo:</strong> Normal (${eq.impresora.tipo})<br><strong>Marca / Modelo:</strong> ${eq.impresora.marca || '--'} ${eq.impresora.modelo || '--'}<br><strong>Serial:</strong> ${eq.impresora.serial || '--'}${colorStr}`;
+            }
+        } else {
+            divImp.style.display = 'none';
+        }
+
+        const divBal = document.getElementById('infoBalanza');
+        const detBal = document.getElementById('modalBalanzaDetalles');
+        divBal.style.display = 'none';
+        
+        if (eq.tipoComputacion === 'Balanza' && eq.balanza) {
+            divBal.style.display = 'block';
+            let vincStr = eq.balanza.vinculada === 'si' ? `✅ Vinculada a PC: <strong>${eq.balanza.computadoraCodigo}</strong>` : '❌ No vinculada a PC';
+            detBal.innerHTML = `<strong>Marca / Modelo:</strong> ${eq.balanza.marca || '--'} ${eq.balanza.modelo || '--'}<br><strong>Tipo:</strong> ${eq.balanza.tipo || '--'}<br><strong>Capacidad:</strong> ${eq.balanza.capacidad || '--'} Kg<br><strong>Serial:</strong> ${eq.balanza.serial || '--'}<br>${vincStr}`;
+        }
+        
+        if (eq.tipoComputacion === 'Computadora' && eq.balanzaAsignada) {
+            divBal.style.display = 'block';
+            detBal.innerHTML = `<strong>⚖️ Balanza Asignada a este equipo:</strong> ${eq.balanzaAsignada}<br><strong>Detalles:</strong> ${eq.balanzaDetalle || '--'}`;
+        }
+
         document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro();
         document.getElementById('mantFecha').value = obtenerFechaHoy(); 
         document.getElementById('dieselFecha').value = obtenerFechaHoy();
@@ -883,8 +1599,21 @@
         const secHistDiesel = document.getElementById('seccionHistorialDiesel'); const infoGasRefrigerante = document.getElementById('infoGasRefrigerante');
         const infoFrescos = document.getElementById('infoFrescos'); const infoATS = document.getElementById('infoATS');
         const divReemplazarATS = document.getElementById('divReemplazarATS');
+        const divReemplazarBalanza = document.getElementById('divReemplazarBalanza');
         
-        divReemplazarATS.style.display = 'none'; document.getElementById('divTrasladarStock').style.display = 'none'; document.getElementById('divAjusteStock').style.display = 'none';
+        divReemplazarATS.style.display = 'none'; 
+        divReemplazarBalanza.style.display = 'none';
+        document.getElementById('divTrasladarStock').style.display = 'none'; 
+        document.getElementById('divAjusteStock').style.display = 'none';
+
+        // Lógica de mantenimiento SO visual
+        if(eq.tipoComputacion === 'Computadora') {
+            document.getElementById('divMantActualizarSO').style.display = 'block';
+            document.getElementById('mantOpcionSO').value = 'no';
+            document.getElementById('divMantSOInputs').style.display = 'none';
+        } else {
+            document.getElementById('divMantActualizarSO').style.display = 'none';
+        }
 
         if(eq.categoria === 'Equipos de Combustión') {
             panelGenerador.style.display = 'flex'; divMantHorasLectura.style.display = 'block'; optDiesel.style.display = 'block'; optRevision.style.display = 'block'; secHistDiesel.style.display = 'block';
@@ -951,12 +1680,96 @@
     function actualizarEstadoManual() {
         let eq = equipos[indexActual]; let nuevoEstado = document.getElementById('modalCambioEstado').value;
         if(nuevoEstado === eq.estado) return;
+
+        // Lógica para balanza al cambiar a Mantenimiento o Dañado
+        if (eq.tipoComputacion === 'Balanza' && (nuevoEstado === 'Mantenimiento' || nuevoEstado === 'Dañado')) {
+            if (confirm(`El estado de la balanza cambiará a "${nuevoEstado}".\n\n¿Desea registrar que la balanza será SUSTITUIDA por una nueva?`)) {
+                document.getElementById('divReemplazarBalanza').style.display = 'block';
+                document.getElementById('nuevaBalFecha').value = obtenerFechaHoy();
+                document.getElementById('sustitucionBalanzaEstado').value = nuevoEstado;
+                return; // Pausamos la actualización estándar hasta que llene la sustitución
+            }
+        }
+
         let motivo = prompt(`Motivo del cambio a "${nuevoEstado}":`, "Revisión rutinaria");
         if(motivo !== null) {
             eq.estado = nuevoEstado; if(!eq.historialEstados) eq.historialEstados = [];
             eq.historialEstados.unshift({ fecha: obtenerFechaHoy(), estado: nuevoEstado, motivo: motivo.trim() || 'Sin motivo' });
             localStorage.setItem('listaEquiposV30', JSON.stringify(equipos)); actualizarTabla(); alert("Estado actualizado.");
         } else { document.getElementById('modalCambioEstado').value = eq.estado; }
+    }
+
+    function cancelarSustitucionBalanza() {
+        document.getElementById('divReemplazarBalanza').style.display = 'none';
+        document.getElementById('modalCambioEstado').value = equipos[indexActual].estado; // revertir
+    }
+
+    function guardarReemplazoBalanza() {
+        let eq = equipos[indexActual];
+        let nMarca = document.getElementById('nuevaBalMarca').value.trim();
+        let nModelo = document.getElementById('nuevaBalModelo').value.trim();
+        let nSerial = document.getElementById('nuevaBalSerial').value.trim();
+        let nTipo = document.getElementById('nuevaBalTipo').value;
+        let nCap = document.getElementById('nuevaBalCapacidad').value;
+        let nFecha = document.getElementById('nuevaBalFecha').value;
+        let motivo = document.getElementById('motivoSustitucionBal').value.trim();
+        let nEstado = document.getElementById('sustitucionBalanzaEstado').value;
+
+        if(!nMarca || !nModelo || !nSerial || !nCap || !nFecha || !motivo) {
+            alert("Complete todos los campos de la nueva balanza y el motivo.");
+            return;
+        }
+
+        let oldBalInfo = `${eq.balanza.marca || ''} ${eq.balanza.modelo || ''} (SN: ${eq.balanza.serial || ''})`;
+
+        // 1. Actualizar estado y su historial
+        eq.estado = nEstado;
+        if(!eq.historialEstados) eq.historialEstados = [];
+        eq.historialEstados.unshift({ fecha: nFecha, estado: nEstado, motivo: `Falla/Sustitución: ${motivo}` });
+
+        // 2. Agregar mantenimiento a la Balanza
+        let trab = `🔄 SUSTITUCIÓN DE BALANZA. Falla: ${motivo}. Retirada: ${oldBalInfo}. Nueva: ${nMarca} ${nModelo} (SN: ${nSerial})`;
+        eq.mantenimientos.unshift({ 
+            fecha: nFecha, 
+            tecnico: 'Sustitución en Sistema', 
+            trabajo: trab, 
+            repuesto: '1x Balanza Nueva', 
+            horasEnMantenimiento: '', 
+            proximoAgendamiento: 'No asignado' 
+        });
+
+        // 3. Actualizar objeto Balanza
+        eq.balanza.marca = nMarca;
+        eq.balanza.modelo = nModelo;
+        eq.balanza.serial = nSerial;
+        eq.balanza.tipo = nTipo;
+        eq.balanza.capacidad = nCap;
+        
+        // 4. Actualizar PC vinculada (si aplica)
+        if (eq.balanza.vinculada === 'si' && eq.balanza.computadoraCodigo) {
+            let compIdx = equipos.findIndex(e => e.codigo === eq.balanza.computadoraCodigo);
+            if (compIdx !== -1) {
+                let comp = equipos[compIdx];
+                let strMarcaMod = `${nMarca} ${nModelo}`;
+                comp.balanzaDetalle = `${strMarcaMod} - ${nTipo} | Cap: ${nCap}Kg (SN: ${nSerial})`;
+                
+                if(!comp.mantenimientos) comp.mantenimientos = [];
+                comp.mantenimientos.unshift({
+                    fecha: nFecha,
+                    tecnico: 'Sustitución en Sistema (Auto)',
+                    trabajo: `🔄 SUSTITUCIÓN DE BALANZA VINCULADA. Se retiró: ${oldBalInfo}. Se vinculó nueva balanza: ${strMarcaMod} (SN: ${nSerial}) por motivo: ${motivo}.`,
+                    repuesto: 'N/A',
+                    horasEnMantenimiento: '',
+                    proximoAgendamiento: 'No asignado'
+                });
+            }
+        }
+
+        localStorage.setItem('listaEquiposV30', JSON.stringify(equipos));
+        document.getElementById('divReemplazarBalanza').style.display = 'none';
+        alert("✅ Balanza sustituida, datos actualizados y guardados en historial de mantenimientos.");
+        actualizarTabla();
+        abrirModal(indexActual);
     }
 
     function renderizarHistorialEstados() {
@@ -1154,10 +1967,24 @@
     }
 
     function guardarMantenimiento() {
-        let eq = equipos[indexActual]; const fecha = document.getElementById('mantFecha').value; const tecnico = document.getElementById('mantTecnico').value; const trabajo = document.getElementById('mantTrabajo').value;
+        let eq = equipos[indexActual]; const fecha = document.getElementById('mantFecha').value; const tecnico = document.getElementById('mantTecnico').value; let trabajo = document.getElementById('mantTrabajo').value;
         const tipoProximoSeleccionado = document.getElementById('selectTipoProximo').value;
         if(!tecnico || !trabajo) return alert("Complete campos obligatorios."); 
         
+        // Logica para actualización de SO
+        if (eq.tipoComputacion === 'Computadora' && document.getElementById('mantOpcionSO').value === 'si') {
+            let nSO = document.getElementById('mantNuevoSO').value;
+            let nVers = document.getElementById('mantNuevaVersionSO').value.trim();
+            let nDesc = document.getElementById('mantDescSO').value.trim();
+            
+            if(!eq.so) eq.so = {};
+            let oldSO = `${eq.so.sistema || 'N/A'} ${eq.so.version || ''}`;
+            eq.so.sistema = nSO;
+            eq.so.version = nVers;
+            
+            trabajo += ` | 💻 SO Actualizado: De [${oldSO}] a [${nSO} ${nVers}] - Motivo: ${nDesc || 'N/A'}`;
+        }
+
         let repuestosGuardados = [];
         
         repuestosMantenimientoTemp.forEach(item => {
@@ -1183,6 +2010,11 @@
         
         let repuestoTexto = repuestosGuardados.length > 0 ? repuestosGuardados.join(" | ") : "Ninguno";
         
+        if (document.getElementById('mantGarantia').value === 'si') {
+            let tiempoGar = document.getElementById('mantTiempoGarantia').value.trim();
+            trabajo += ` | 🛡️ Garantía: Sí (${tiempoGar})`;
+        }
+
         let mHoras = eq.categoria === 'Equipos de Combustión' ? document.getElementById('mantHorometroActual').value : ""; if(mHoras !== "") eq.horas = parseInt(mHoras);
         let proximoDestinoTexto = "No reagendado"; eq.tipoProximo = tipoProximoSeleccionado;
         if (tipoProximoSeleccionado === 'horas' && eq.categoria === 'Equipos de Combustión') { 
@@ -1196,7 +2028,13 @@
         actualizarCabeceraProximoMantenimiento(eq); actualizarTabla(); document.getElementById('formMantenimiento').reset(); document.getElementById('mantFecha').value = obtenerFechaHoy(); document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro(); alert("Mantenimiento guardado.");
         
         repuestosMantenimientoTemp = []; renderizarListaMantenimientoTemp();
-        renderizarHistorial(); renderizarRepuestos(); actualizarDropdownRepuestos(); if(eq.categoria === 'Equipos de Combustión') document.getElementById('modalHoras').innerText = eq.horas;
+        renderizarHistorial(); renderizarRepuestos(); actualizarDropdownRepuestos(); 
+        
+        if(eq.categoria === 'Equipos de Combustión') {
+            document.getElementById('modalHoras').innerText = eq.horas;
+        } else if(eq.tipoComputacion === 'Computadora') {
+            abrirModal(indexActual); // Refresh if OS changed
+        }
     }
 
     function renderizarHistorial() {
@@ -1217,6 +2055,11 @@
         
         document.getElementById('nuevoCatCompartido').value = 'no';
         document.getElementById('nuevoCatMinimo').value = '';
+        document.getElementById('nuevoCatGarantia').value = 'no';
+        document.getElementById('divGarantiaRepuesto').style.display = 'none';
+        document.getElementById('nuevoCatFechaCompra').value = '';
+        document.getElementById('nuevoCatTiempoGarantia').value = '';
+        
         document.getElementById('divEquiposCompatibles').style.display = 'none';
         document.getElementById('chkTodosEquipos').checked = false;
         document.getElementById('nuevoCatClasificacion').value = 'Repuesto';
@@ -1261,9 +2104,16 @@
                 chks.forEach(c => { if(!compartidos.includes(c.value)) compartidos.push(c.value); });
             }
         }
+
+        let objGarantia = { tiene: 'no', fechaCompra: '', tiempo: '' };
+        if(document.getElementById('nuevoCatGarantia').value === 'si') {
+            objGarantia.tiene = 'si';
+            objGarantia.fechaCompra = document.getElementById('nuevoCatFechaCompra').value;
+            objGarantia.tiempo = document.getElementById('nuevoCatTiempoGarantia').value.trim();
+        }
         
         repuestosGlobales.push({ 
-            id: 'R' + Date.now(), clasificacion: clasif, tipo: t, marca: m, sucursal: sucActual, cantidad: 0, precio: 0, stockMinimo: minStock, ultimaModificacion: obtenerFechaHoy(), equiposCompatibles: compartidos,
+            id: 'R' + Date.now(), clasificacion: clasif, tipo: t, marca: m, sucursal: sucActual, cantidad: 0, precio: 0, stockMinimo: minStock, garantia: objGarantia, ultimaModificacion: obtenerFechaHoy(), equiposCompatibles: compartidos,
             historialMovimientos: [{fecha: obtenerFechaHoy(), accion: 'Creación', detalle: 'Agregado al catálogo local', cant: '0'}] 
         });
         
@@ -1444,7 +2294,7 @@
             rDestino.historialMovimientos.unshift({ fecha: fecha, accion: 'Ingreso por Traslado', detalle: `Recibido de sucursal ${rOrigen.sucursal}`, cant: `+${cant}` });
         } else {
             repuestosGlobales.push({
-                id: 'R' + Date.now(), clasificacion: rOrigen.clasificacion || 'Repuesto', tipo: rOrigen.tipo, marca: rOrigen.marca, sucursal: dest, cantidad: cant, precio: rOrigen.precio || 0, stockMinimo: rOrigen.stockMinimo || 0, ultimaModificacion: fecha,
+                id: 'R' + Date.now(), clasificacion: rOrigen.clasificacion || 'Repuesto', tipo: rOrigen.tipo, marca: rOrigen.marca, sucursal: dest, cantidad: cant, precio: rOrigen.precio || 0, stockMinimo: rOrigen.stockMinimo || 0, garantia: rOrigen.garantia || {tiene:'no'}, ultimaModificacion: fecha,
                 equiposCompatibles: eqDestino === 'TODOS' ? ['TODOS'] : [eqDestino],
                 historialMovimientos: [{ fecha: fecha, accion: 'Ingreso por Traslado', detalle: `Recibido de sucursal ${rOrigen.sucursal}`, cant: `+${cant}` }]
             });
@@ -1477,7 +2327,8 @@
             
             let minStock = r.stockMinimo || 0;
             let alertStock = r.cantidad <= minStock ? '<span style="color:#dc3545; font-size:11px; font-weight:bold; margin-left:10px; border:1px solid #dc3545; padding:1px 4px; border-radius:3px; background:#ffe6e6;">⚠️ Pedir Stock</span>' : '';
-            
+            let garantiaHtml = (r.garantia && r.garantia.tiene === 'si') ? `<br><span style="color:#2e7d32; font-size:11px; font-weight:bold;">🛡️ En Garantía (${r.garantia.tiempo || 'N/A'})</span>` : '';
+
             if(r.historialMovimientos) r.historialMovimientos.forEach(ch => tbl += `<tr><td>${ch.fecha}</td><td style="color:${ch.cant.includes('-') ? 'red' : 'green'};font-weight:bold;">${ch.cant}</td><td>${ch.accion}</td><td>${ch.detalle}</td></tr>`);
             
             c.innerHTML += `<li class="${cz}">
@@ -1486,6 +2337,7 @@
                         <strong>${r.tipo}</strong> (${r.marca}) ${etiquetaCompartido} ${alertStock}<br>
                         <div style="font-size:12px; margin-top:2px;">${etiquetaClasif} | <strong>${etiquetaPrecio}</strong></div>
                         <span class="fechas-repuesto">Últ. Movimiento: ${fechaMov} | Stock Mínimo: ${minStock}</span>
+                        ${garantiaHtml}
                     </div>
                     <div style="text-align:right;">
                         <span class="badge-stock">Stock: ${r.cantidad}</span>
