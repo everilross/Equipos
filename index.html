@@ -152,14 +152,14 @@
 
                     <!-- MÓDULO DE IMPRESORAS (Solo para Computadora) -->
                     <div id="divOpcionImpresora" style="display:none; margin-top:15px; padding-top:10px; border-top:1px dashed #90caf9;">
-                        <label style="color:#0d47a1;">¿Esta computadora lleva impresora vinculada?</label>
+                        <label style="color:#0d47a1;">¿Desea vincular impresoras a esta PC?</label>
                         <select id="llevaImpresora" onchange="toggleImpresora()">
                             <option value="no">No</option>
-                            <option value="si">Sí</option>
+                            <option value="si">Sí, agregar impresoras</option>
                         </select>
                         
                         <div id="divLogicaImpresora" style="display:none; background:#fff; padding:15px; border-radius:6px; border:1px solid #bbdefb; margin-top:10px;">
-                            <label style="color:var(--secondary);">Tipo Principal de Impresora</label>
+                            <label style="color:var(--secondary);">Construir Nueva Impresora</label>
                             <select id="categoriaImpresora" onchange="toggleCategoriaImpresora()" style="margin-bottom:10px; border-color:var(--secondary);">
                                 <option value="Normal">🖨️ Normal (Tickera / Térmica / Tóner)</option>
                                 <option value="Fiscal">🧾 Fiscal (Facturación)</option>
@@ -234,6 +234,12 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
+                                <button type="button" class="btn-info" onclick="agregarImpresoraTemp()" style="background:#1565c0; width:100%;">➕ Añadir a la lista de esta PC</button>
+                            </div>
+                            
+                            <ul id="listaImpresorasRegistro" style="margin-top:10px; padding:0; list-style:none;"></ul>
                         </div>
                     </div>
                     
@@ -489,7 +495,7 @@
 
         <!-- Seccion Impresora -->
         <div id="infoImpresora" style="display: none; font-size: 13px; color: #424242; background: #f5f5f5; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #607d8b; line-height: 1.6;">
-            <div style="font-size: 14px; margin-bottom: 4px; border-bottom: 1px dashed #607d8b; padding-bottom: 2px;">🖨️ Especificaciones de Impresora:</div>
+            <div style="font-size: 14px; margin-bottom: 8px; border-bottom: 1px dashed #607d8b; padding-bottom: 2px;">🖨️ Especificaciones de Impresoras Vinculadas:</div>
             <div id="modalImpresoraDetalles" style="color:#333; font-weight:normal;"></div>
         </div>
 
@@ -730,6 +736,11 @@
 
             <form id="formMantenimiento" style="display:none; background:#fff; padding:15px; border-radius:6px; border:1px solid #ccc;">
                 
+                <div id="divMantObjetivo" style="display:none; background: #e3f2fd; padding: 10px; border-radius: 4px; border: 1px dashed #2196f3; margin-bottom: 15px;">
+                    <label style="color: #0d47a1;">¿A qué equipo aplica este mantenimiento?</label>
+                    <select id="mantObjetivoSelect" style="font-weight:bold; border-color:#90caf9;"></select>
+                </div>
+
                 <div style="background: #e8f5e9; padding: 10px; border-radius: 4px; border: 1px dashed #4caf50; margin-bottom: 15px;">
                     <label style="color: #2e7d32;">¿Este mantenimiento lleva garantía?</label>
                     <select id="mantGarantia" onchange="document.getElementById('divGarantiaMant').style.display = this.value === 'si' ? 'block' : 'none';">
@@ -869,6 +880,7 @@
     let repuestosGlobales = JSON.parse(localStorage.getItem('repuestosV30')) || [];
     let indexActual = null;
     let repuestosMantenimientoTemp = [];
+    let impresorasTemp = []; // Para almacenar multiples impresoras al registrar
 
     // Gestión dinámica de departamentos
     let departamentos = JSON.parse(localStorage.getItem('departamentosV30')) || ['Administración', 'Ventas', 'Almacén'];
@@ -895,7 +907,7 @@
                 renderizarDepartamentos();
                 sel.value = nuevo.trim();
             } else {
-                sel.value = ""; // Resetea si cancela
+                sel.value = ""; 
             }
         }
     }
@@ -931,7 +943,6 @@
             document.getElementById('impTonerModelo').value = imp.modelo;
             document.getElementById('impTonerSerial').value = imp.serial;
             document.getElementById('impTonerColor').value = imp.color;
-            // Bloquear campos
             document.getElementById('impTonerMarca').readOnly = true;
             document.getElementById('impTonerModelo').readOnly = true;
             document.getElementById('impTonerSerial').readOnly = true;
@@ -940,12 +951,103 @@
             document.getElementById('impTonerMarca').value = '';
             document.getElementById('impTonerModelo').value = '';
             document.getElementById('impTonerSerial').value = '';
-            // Desbloquear campos
             document.getElementById('impTonerMarca').readOnly = false;
             document.getElementById('impTonerModelo').readOnly = false;
             document.getElementById('impTonerSerial').readOnly = false;
             document.getElementById('impTonerColor').disabled = false;
         }
+    }
+
+    // Funciones para gestionar multiples impresoras en el registro
+    function agregarImpresoraTemp() {
+        const catImp = document.getElementById('categoriaImpresora').value;
+        let impresoraObj = null;
+
+        if(catImp === 'Fiscal') {
+            impresoraObj = {
+                estado: 'Operativo',
+                categoria: 'Fiscal',
+                numCaja: document.getElementById('impFiscalNumCaja').value.trim(),
+                marca: document.getElementById('impFiscalMarca').value.trim(),
+                modelo: document.getElementById('impFiscalModelo').value.trim(),
+                serial: document.getElementById('impFiscalSerial').value.trim(),
+                dispositivoTipo: document.getElementById('impFiscalDispTipo').value,
+                dispositivoSerial: document.getElementById('impFiscalDispSerial').value.trim()
+            };
+        } else {
+            const tipoNor = document.getElementById('impNormalTipo').value;
+            if(tipoNor === 'Tickera' || tipoNor === 'Térmica') {
+                impresoraObj = {
+                    estado: 'Operativo',
+                    categoria: 'Normal',
+                    tipo: tipoNor,
+                    marca: document.getElementById('impNormalMarca').value.trim(),
+                    modelo: document.getElementById('impNormalModelo').value.trim(),
+                    serial: document.getElementById('impNormalSerial').value.trim()
+                };
+            } else if(tipoNor === 'Tóner') {
+                const origenToner = document.getElementById('impTonerOrigen').value;
+                let marcaT = document.getElementById('impTonerMarca').value.trim();
+                let modeloT = document.getElementById('impTonerModelo').value.trim();
+                let serialT = document.getElementById('impTonerSerial').value.trim();
+                let colorT = document.getElementById('impTonerColor').value;
+                
+                impresoraObj = {
+                    estado: 'Operativo',
+                    categoria: 'Normal',
+                    tipo: 'Tóner',
+                    marca: marcaT,
+                    modelo: modeloT,
+                    serial: serialT,
+                    color: colorT
+                };
+                
+                if(origenToner === 'nueva' && marcaT && modeloT) {
+                    impresorasToner.push({ marca: marcaT, modelo: modeloT, serial: serialT, color: colorT });
+                    localStorage.setItem('impresorasTonerV30', JSON.stringify(impresorasToner));
+                    renderizarListaToner();
+                }
+            }
+        }
+
+        if(impresoraObj && (impresoraObj.marca || impresoraObj.modelo || impresoraObj.serial)) {
+            impresorasTemp.push(impresoraObj);
+            renderizarImpresorasTemp();
+            
+            // Limpiar campos para la siguiente
+            document.getElementById('impFiscalNumCaja').value = '';
+            document.getElementById('impFiscalMarca').value = '';
+            document.getElementById('impFiscalModelo').value = '';
+            document.getElementById('impFiscalSerial').value = '';
+            document.getElementById('impFiscalDispSerial').value = '';
+
+            document.getElementById('impNormalMarca').value = '';
+            document.getElementById('impNormalModelo').value = '';
+            document.getElementById('impNormalSerial').value = '';
+            
+            document.getElementById('impTonerMarca').value = '';
+            document.getElementById('impTonerModelo').value = '';
+            document.getElementById('impTonerSerial').value = '';
+        } else {
+            alert("Por favor ingrese al menos Marca, Modelo o Serial para agregar la impresora.");
+        }
+    }
+
+    function renderizarImpresorasTemp() {
+        const ul = document.getElementById('listaImpresorasRegistro');
+        ul.innerHTML = '';
+        impresorasTemp.forEach((imp, idx) => {
+            let lbl = imp.categoria === 'Fiscal' ? 'Fiscal' : imp.tipo;
+            ul.innerHTML += `<li style="background:#eef2f7; padding:8px; margin-bottom:4px; border-radius:4px; display:flex; justify-content:space-between; align-items:center; border-left:3px solid #607d8b;">
+                <span style="font-size:13px;">🖨️ [${lbl}] ${imp.marca} ${imp.modelo} (SN: ${imp.serial})</span>
+                <button type="button" class="btn-danger btn-small" onclick="quitarImpresoraTemp(${idx})">X</button>
+            </li>`;
+        });
+    }
+
+    function quitarImpresoraTemp(idx) {
+        impresorasTemp.splice(idx, 1);
+        renderizarImpresorasTemp();
     }
 
     function toggleComputadoraOpciones() {
@@ -1296,10 +1398,13 @@
                     let subInfo = eq.subCategoria;
                     if (eq.subCategoria === 'Computación' && eq.tipoComputacion) {
                         subInfo += ` (${eq.tipoComputacion})`;
-                        if(eq.impresora) {
-                            let prnType = eq.impresora.categoria === 'Fiscal' ? 'Fiscal' : eq.impresora.tipo;
-                            subInfo += ` <span style="font-size:11px;">🖨️ [+Imp. ${prnType}]</span>`;
+                        
+                        // Migración para array de impresoras
+                        let arrImpresoras = eq.impresoras || (eq.impresora ? [eq.impresora] : []);
+                        if(arrImpresoras.length > 0) {
+                            subInfo += ` <span style="font-size:11px;">🖨️ [+${arrImpresoras.length} Imp.]</span>`;
                         }
+                        
                         if(eq.balanzaAsignada) {
                             subInfo += ` <span style="font-size:11px;">⚖️ [+Balanza]</span>`;
                         }
@@ -1378,7 +1483,7 @@
         
         let tipoComp = '';
         let depto = '';
-        let impresoraObj = null;
+        let impresorasObjArray = [];
         let balanzaObj = null;
         let soObj = null;
 
@@ -1387,7 +1492,6 @@
             depto = document.getElementById('departamentoTec').value;
             
             if(tipoComp === 'Computadora') {
-                
                 soObj = {
                     sistema: document.getElementById('compSistemaOperativo').value,
                     version: document.getElementById('compVersionSO').value.trim()
@@ -1395,50 +1499,7 @@
 
                 const llevaImp = document.getElementById('llevaImpresora').value;
                 if(llevaImp === 'si') {
-                    const catImp = document.getElementById('categoriaImpresora').value;
-                    if(catImp === 'Fiscal') {
-                        impresoraObj = {
-                            categoria: 'Fiscal',
-                            numCaja: document.getElementById('impFiscalNumCaja').value.trim(),
-                            marca: document.getElementById('impFiscalMarca').value.trim(),
-                            modelo: document.getElementById('impFiscalModelo').value.trim(),
-                            serial: document.getElementById('impFiscalSerial').value.trim(),
-                            dispositivoTipo: document.getElementById('impFiscalDispTipo').value,
-                            dispositivoSerial: document.getElementById('impFiscalDispSerial').value.trim()
-                        };
-                    } else {
-                        const tipoNor = document.getElementById('impNormalTipo').value;
-                        if(tipoNor === 'Tickera' || tipoNor === 'Térmica') {
-                            impresoraObj = {
-                                categoria: 'Normal',
-                                tipo: tipoNor,
-                                marca: document.getElementById('impNormalMarca').value.trim(),
-                                modelo: document.getElementById('impNormalModelo').value.trim(),
-                                serial: document.getElementById('impNormalSerial').value.trim()
-                            };
-                        } else if(tipoNor === 'Tóner') {
-                            const origenToner = document.getElementById('impTonerOrigen').value;
-                            let marcaT = document.getElementById('impTonerMarca').value.trim();
-                            let modeloT = document.getElementById('impTonerModelo').value.trim();
-                            let serialT = document.getElementById('impTonerSerial').value.trim();
-                            let colorT = document.getElementById('impTonerColor').value;
-                            
-                            impresoraObj = {
-                                categoria: 'Normal',
-                                tipo: 'Tóner',
-                                marca: marcaT,
-                                modelo: modeloT,
-                                serial: serialT,
-                                color: colorT
-                            };
-                            
-                            if(origenToner === 'nueva' && marcaT && modeloT) {
-                                impresorasToner.push({ marca: marcaT, modelo: modeloT, serial: serialT, color: colorT });
-                                localStorage.setItem('impresorasTonerV30', JSON.stringify(impresorasToner));
-                                renderizarListaToner();
-                            }
-                        }
-                    }
+                    impresorasObjArray = [...impresorasTemp];
                 }
             } else if (tipoComp === 'Balanza') {
                 balanzaObj = {
@@ -1479,7 +1540,7 @@
             tipoComputacion: tipoComp,
             departamento: depto,
             so: soObj,
-            impresora: impresoraObj,
+            impresoras: impresorasObjArray,
             balanza: balanzaObj,
             garantia: objGarantia,
             horas: isCombustion ? parseInt(document.getElementById('horasUso').value) : '', capacidadTanque: isCombustion ? parseFloat(document.getElementById('capacidadTanque').value) : '',
@@ -1491,6 +1552,10 @@
         };
         
         equipos.push(nuevoEq); 
+        
+        // Limpiar lista temporal de impresoras
+        impresorasTemp = [];
+        renderizarImpresorasTemp();
         
         // Regla de Balanzas: Si la balanza se vinculó, actualizamos el registro de la PC
         if (balanzaObj && balanzaObj.vinculada === 'si' && balanzaObj.computadoraCodigo) {
@@ -1507,7 +1572,6 @@
 
     function eliminarEquipo(idx) { 
         if(confirm("¿Eliminar equipo?")) { 
-            // Si elimino una balanza vinculada, liberar a la PC
             let eq = equipos[idx];
             if (eq.tipoComputacion === 'Balanza' && eq.balanza && eq.balanza.vinculada === 'si') {
                 let compIdx = equipos.findIndex(e => e.codigo === eq.balanza.computadoraCodigo);
@@ -1516,10 +1580,14 @@
                     delete equipos[compIdx].balanzaDetalle;
                 }
             }
-            // Si elimino una PC que tenía balanza, avisar (opcional)
             equipos.splice(idx, 1); 
             actualizarTabla(); 
         } 
+    }
+
+    function cambiarEstadoImpresora(pcIdx, impIdx, nuevoEstado) {
+        equipos[pcIdx].impresoras[impIdx].estado = nuevoEstado;
+        localStorage.setItem('listaEquiposV30', JSON.stringify(equipos));
     }
 
     function abrirModal(idx) {
@@ -1559,14 +1627,33 @@
 
         const divImp = document.getElementById('infoImpresora');
         const detImp = document.getElementById('modalImpresoraDetalles');
-        if(eq.impresora) {
+        
+        let arrImpresoras = eq.impresoras || (eq.impresora ? [eq.impresora] : []);
+        
+        if(arrImpresoras.length > 0) {
             divImp.style.display = 'block';
-            if(eq.impresora.categoria === 'Fiscal') {
-                detImp.innerHTML = `<strong>Tipo:</strong> Fiscal<br><strong>Número de Caja:</strong> ${eq.impresora.numCaja || '--'}<br><strong>Marca / Modelo:</strong> ${eq.impresora.marca || '--'} ${eq.impresora.modelo || '--'}<br><strong>Serial Impresora:</strong> ${eq.impresora.serial || '--'}<br><strong>Dispositivo ${eq.impresora.dispositivoTipo}:</strong> Serial ${eq.impresora.dispositivoSerial || '--'}`;
-            } else {
-                let colorStr = eq.impresora.tipo === 'Tóner' ? `<br><strong>Tipo de Impresión:</strong> ${eq.impresora.color || '--'}` : '';
-                detImp.innerHTML = `<strong>Tipo:</strong> Normal (${eq.impresora.tipo})<br><strong>Marca / Modelo:</strong> ${eq.impresora.marca || '--'} ${eq.impresora.modelo || '--'}<br><strong>Serial:</strong> ${eq.impresora.serial || '--'}${colorStr}`;
-            }
+            detImp.innerHTML = '';
+            arrImpresoras.forEach((imp, i) => {
+                let currentEst = imp.estado || 'Operativo';
+                let statusSelect = `<select onchange="cambiarEstadoImpresora(${indexActual}, ${i}, this.value)" style="font-size:11px; padding:2px; border-radius:3px; font-weight:bold; border-color:#ccc;">
+                    <option value="Operativo" ${currentEst==='Operativo'?'selected':''}>✅ Operativo</option>
+                    <option value="En Alerta" ${currentEst==='En Alerta'?'selected':''}>⚠️ En Alerta</option>
+                    <option value="Mantenimiento" ${currentEst==='Mantenimiento'?'selected':''}>🔧 Mantenimiento</option>
+                    <option value="Dañado" ${currentEst==='Dañado'?'selected':''}>🚨 Dañado</option>
+                </select>`;
+
+                let htmlInfo = `<div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #cfd8dc;">
+                    <strong>[#${i+1}] Tipo:</strong> ${imp.categoria === 'Fiscal' ? 'Fiscal' : 'Normal ('+imp.tipo+')'} | <strong>Estado:</strong> ${statusSelect}<br>`;
+                
+                if(imp.categoria === 'Fiscal') {
+                    htmlInfo += `<strong>Caja:</strong> ${imp.numCaja||'--'} | <strong>Marca/Mod:</strong> ${imp.marca||'--'} ${imp.modelo||'--'} | <strong>SN:</strong> ${imp.serial||'--'}<br><strong>Disp. ${imp.dispositivoTipo}:</strong> SN ${imp.dispositivoSerial||'--'}`;
+                } else {
+                    let colorStr = imp.tipo === 'Tóner' ? ` | <strong>Color:</strong> ${imp.color||'--'}` : '';
+                    htmlInfo += `<strong>Marca/Mod:</strong> ${imp.marca||'--'} ${imp.modelo||'--'} | <strong>SN:</strong> ${imp.serial||'--'}${colorStr}`;
+                }
+                htmlInfo += `</div>`;
+                detImp.innerHTML += htmlInfo;
+            });
         } else {
             divImp.style.display = 'none';
         }
@@ -1583,7 +1670,18 @@
         
         if (eq.tipoComputacion === 'Computadora' && eq.balanzaAsignada) {
             divBal.style.display = 'block';
-            detBal.innerHTML = `<strong>⚖️ Balanza Asignada a este equipo:</strong> ${eq.balanzaAsignada}<br><strong>Detalles:</strong> ${eq.balanzaDetalle || '--'}`;
+            let balanzaReal = equipos.find(e => e.codigo === eq.balanzaAsignada);
+            let estadoBal = balanzaReal ? balanzaReal.estado : 'Desconocido';
+            let colorBal = '#333';
+            if(estadoBal === 'Operativo') colorBal = 'var(--primary)';
+            else if(estadoBal === 'En Alerta') colorBal = 'var(--secondary)';
+            else if(estadoBal === 'Dañado') colorBal = '#842029';
+            else colorBal = '#dc3545';
+
+            detBal.innerHTML = `<strong>⚖️ Balanza Asignada a este equipo:</strong> ${eq.balanzaAsignada}<br>
+            <strong>Detalles:</strong> ${eq.balanzaDetalle || '--'}<br>
+            <strong>Estado de la Balanza:</strong> <span style="color:${colorBal}; font-weight:bold;">${estadoBal}</span><br>
+            <small style="color:#666; margin-top:5px; display:block;">(⚠️ El mantenimiento o cambios de estado de la balanza deben realizarse abriendo su propia ficha).</small>`;
         }
 
         document.getElementById('tipoRegistroGlobal').value = ""; toggleFormulariosRegistro();
@@ -1600,6 +1698,8 @@
         const infoFrescos = document.getElementById('infoFrescos'); const infoATS = document.getElementById('infoATS');
         const divReemplazarATS = document.getElementById('divReemplazarATS');
         const divReemplazarBalanza = document.getElementById('divReemplazarBalanza');
+        const divMantObjetivo = document.getElementById('divMantObjetivo');
+        const selMantObjetivo = document.getElementById('mantObjetivoSelect');
         
         divReemplazarATS.style.display = 'none'; 
         divReemplazarBalanza.style.display = 'none';
@@ -1613,6 +1713,18 @@
             document.getElementById('divMantSOInputs').style.display = 'none';
         } else {
             document.getElementById('divMantActualizarSO').style.display = 'none';
+        }
+
+        // Lógica de objetivo de mantenimiento (PC vs Impresoras)
+        if(eq.tipoComputacion === 'Computadora' && arrImpresoras.length > 0) {
+            divMantObjetivo.style.display = 'block';
+            selMantObjetivo.innerHTML = `<option value="PC">💻 Mantenimiento a la Computadora (CPU/Hardware/SO)</option>`;
+            arrImpresoras.forEach((imp, idx) => {
+                let descImp = imp.categoria === 'Fiscal' ? 'Fiscal' : imp.tipo;
+                selMantObjetivo.innerHTML += `<option value="IMP_${idx}">🖨️ Impresora #${idx+1}: ${imp.marca} ${imp.modelo} (${descImp})</option>`;
+            });
+        } else {
+            divMantObjetivo.style.display = 'none';
         }
 
         if(eq.categoria === 'Equipos de Combustión') {
@@ -1985,6 +2097,19 @@
             trabajo += ` | 💻 SO Actualizado: De [${oldSO}] a [${nSO} ${nVers}] - Motivo: ${nDesc || 'N/A'}`;
         }
 
+        // Lógica de objetivo (Impresora vs PC)
+        let arrImpresoras = eq.impresoras || (eq.impresora ? [eq.impresora] : []);
+        if (eq.tipoComputacion === 'Computadora' && arrImpresoras.length > 0) {
+            let objSel = document.getElementById('mantObjetivoSelect').value;
+            if (objSel !== 'PC') {
+                let idxImp = parseInt(objSel.split('_')[1]);
+                let impFocus = arrImpresoras[idxImp];
+                trabajo = `[Aplica a Impresora: ${impFocus.marca} ${impFocus.modelo}] ` + trabajo;
+            } else {
+                trabajo = `[Aplica a PC (Hardware/SO)] ` + trabajo;
+            }
+        }
+
         let repuestosGuardados = [];
         
         repuestosMantenimientoTemp.forEach(item => {
@@ -2033,7 +2158,7 @@
         if(eq.categoria === 'Equipos de Combustión') {
             document.getElementById('modalHoras').innerText = eq.horas;
         } else if(eq.tipoComputacion === 'Computadora') {
-            abrirModal(indexActual); // Refresh if OS changed
+            abrirModal(indexActual); 
         }
     }
 
